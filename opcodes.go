@@ -155,28 +155,28 @@ const (
 
 // Shifts
 	// ASL - Arithmetic Shift Left
-	ASL_Accumulator_0A = 0x0A
+	ASL_Acu_0A = 0x0A
 	ASL_Zp_06 = 0x06
 	ASL_ZpX_16 = 0x16
 	ASL_Abs_0E = 0x0E
 	ASL_AbsX_1E = 0x1E
 
 	// LSR - Logical Shift Right
-	LSR_Accumulator_4A = 0x4A
+	LSR_Acu_4A = 0x4A
 	LSR_Zp_46 = 0x46
 	LSR_ZpX_56 = 0x56
 	LSR_Abs_4E = 0x4E
 	LSR_AbsX_5E = 0x5E
 	
 	// ROL - Rotate Left
-	ROL_Accumulator_2A = 0x2A
+	ROL_Acu_2A = 0x2A
 	ROL_Zp_26 = 0x26
 	ROL_ZpX_36 = 0x36
 	ROL_Abs_2E = 0x2E
 	ROL_AbsX_3E = 0x3E
 
 	// ROR - Rotate Right
-	ROR_Accumulator_6A = 0x6A
+	ROR_Acu_6A = 0x6A
 	ROR_Zp_66 = 0x66
 	ROR_ZpX_76 = 0x76
 	ROR_Abs_6E = 0x6E

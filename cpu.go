@@ -1,11 +1,11 @@
 package Cpu6502
 
 type Cpu struct {
-	PC    word
-	Stack byte
-	A     byte
-	X     byte
-	Y     byte
+	PC    word // Program counter
+	Stack byte // Stack pointer
+	A     byte // A register
+	X     byte // X register
+	Y     byte // Y register
 
 	Status struct {
 		Zero     bool
@@ -16,7 +16,7 @@ type Cpu struct {
 		Negative bool
 	}
 
-	cycles    byte // Cycle count of the last executed instruction [1..7]
+	// cycles    byte // Cycle count of the last executed instruction [1..7]
 	pageCross bool // Flag when indexed modes cross a page boundary
 
 	readMemory  [0x10000]func(word) byte
@@ -42,8 +42,8 @@ func (cpu *Cpu) reset() {
 }
 
 type word = uint16
-
-const signBit = 1<<7
+const lowByte = 0xF  // Bitmask for low byte of word
+const signBit = 1<<7 // Bitmask for leftmost (sign) bit
 
 var opcodeCycles = [0x100]byte {
 //  0 1 2 3 4 5 6 7 8 9 A B C D E F

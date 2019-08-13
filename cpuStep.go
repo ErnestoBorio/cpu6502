@@ -6,7 +6,7 @@ func (cpu *Cpu) step() byte {
 	cpu.PC++
 
 	// this can be incremented by special cases like branch page crossing
-	cpu.cycles = opcodeCycles[opcode]
+	cycles := opcodeCycles[opcode]
 
 	// The 6502 reads the next byte in advance to gain time, this could have side effects, so it's not trivial
 	// TODO: Ignore this for now, then test with and without it and see if it impacts
@@ -16,5 +16,5 @@ func (cpu *Cpu) step() byte {
 
 	}
 
-	return cpu.cycles
+	return cycles
 }

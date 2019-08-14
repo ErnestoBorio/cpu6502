@@ -1,12 +1,11 @@
 package Cpu6502
 
-func (cpu *Cpu) step() byte {
-	cpu.pageCross = false
+func (cpu *Cpu) step() {
 	opcode := cpu.readMemory[cpu.PC](cpu.PC)
 	cpu.PC++
 
 	// this can be incremented by special cases like branch page crossing
-	cycles := opcodeCycles[opcode]
+	cpu.cycles = opcodeCycles[opcode]
 
 	// The 6502 reads the next byte in advance to gain time, this could have side effects, so it's not trivial
 	// TODO: Ignore this for now, then test with and without it and see if it impacts
@@ -15,6 +14,4 @@ func (cpu *Cpu) step() byte {
 	switch opcode {
 
 	}
-
-	return cycles
 }

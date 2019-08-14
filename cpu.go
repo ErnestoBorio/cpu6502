@@ -16,8 +16,7 @@ type Cpu struct {
 		Negative bool
 	}
 
-	// cycles    byte // Cycle count of the last executed instruction [1..7]
-	pageCross bool // Flag when indexed modes cross a page boundary
+	cycles byte // Cycle count of the last executed instruction [1..7]
 
 	readMemory  [0x10000]func(word) byte
 	writeMemory [0x10000]func(word,byte)

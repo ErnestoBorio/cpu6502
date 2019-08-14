@@ -12,6 +12,5 @@ func (cpu *Cpu) step() {
 	// var operand = cpu.ReadMemory[cpu.PC+1](cpu.PC+1)
 
 	switch opcode {
-
 	}
 }

@@ -32,10 +32,10 @@ case STA_Abs_Y_99: cpu.storeReg(cpu.A, cpu.absoluteIndexedAddress(cpu.Y))
 case STA_IndexIndirX_81: cpu.storeReg(cpu.A, cpu.indexedIndirectXaddress())
 case STA_IndirIndexY_91: cpu.storeReg(cpu.A, cpu.indirectIndexedYaddress())
 // INX INY INC DEX DEY DEC
-case INX_E8: DeInXY( cpu, &cpu->x, +1 );
-case DEX_CA: DeInXY( cpu, &cpu->x, -1 );
-case INY_C8: DeInXY( cpu, &cpu->y, +1 );
-case DEY_88: DeInXY( cpu, &cpu->y, -1 );
+case INX_E8: cpu.incDecReg(&cpu.X, +1)
+case DEX_CA: cpu.incDecReg(&cpu.X, -1)
+case INY_C8: cpu.incDecReg(&cpu.Y, +1)
+case DEY_88: cpu.incDecReg(&cpu.Y, -1)
 case INC_Zp_E6: IncDec( cpu, operand, +1 );
 case DEC_Zp_C6: IncDec( cpu, operand, -1 );
 case INC_Zp_X_F6: IncDec( cpu, ZeroPageX_adr(), +1 );

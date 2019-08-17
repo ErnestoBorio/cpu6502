@@ -1,4 +1,4 @@
-package Cpu6502
+package cpu6502
 
 // Returns the byte the PC points to
 func (cpu *Cpu) immediate() byte {

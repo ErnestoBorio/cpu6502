@@ -1,4 +1,4 @@
-package Cpu6502
+package cpu6502
 
 const (
 // Load/Store Operations

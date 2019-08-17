@@ -1,4 +1,4 @@
-package Cpu6502
+package cpu6502
 
 func (cpu *Cpu) step() {
 	opcode := cpu.readMemory[cpu.PC](cpu.PC)

@@ -36,46 +36,46 @@ case INX_E8: cpu.incDecReg(&cpu.X, +1)
 case DEX_CA: cpu.incDecReg(&cpu.X, -1)
 case INY_C8: cpu.incDecReg(&cpu.Y, +1)
 case DEY_88: cpu.incDecReg(&cpu.Y, -1)
-case INC_Zp_E6: IncDec( cpu, operand, +1 );
-case DEC_Zp_C6: IncDec( cpu, operand, -1 );
-case INC_Zp_X_F6: IncDec( cpu, ZeroPageX_adr(), +1 );
-case DEC_Zp_X_D6: IncDec( cpu, ZeroPageX_adr(), -1 );
-case INC_Abs_EE: IncDec( cpu, Absolute_adr( cpu, operand ), +1 );
-case DEC_Abs_CE: IncDec( cpu, Absolute_adr( cpu, operand ), -1 );
-case INC_Abs_X_FE: IncDec( cpu, Absolute_Indexed_adr( cpu, operand, cpu->x ), +1 );
-case DEC_Abs_X_DE: IncDec( cpu, Absolute_Indexed_adr( cpu, operand, cpu->x ), -1 );
+case INC_Zp_E6: cpu.incDec(cpu.zeroPageAddress(), +1 )
+case DEC_Zp_C6: cpu.incDec(cpu.zeroPageAddress(), -1 )
+case INC_Zp_X_F6: cpu.incDec(cpu.zeroPageIndexedAddress(cpu.X), +1 )
+case DEC_Zp_X_D6: cpu.incDec(cpu.zeroPageIndexedAddress(cpu.X), -1 )
+case INC_Abs_EE: cpu.incDec(cpu.absoluteAddress(), +1 )
+case DEC_Abs_CE: cpu.incDec(cpu.absoluteAddress(), -1 )
+case INC_Abs_X_FE: cpu.incDec(cpu.absoluteIndexedAddress(cpu.X), +1 )
+case DEC_Abs_X_DE: cpu.incDec(cpu.absoluteIndexedAddress(cpu.X), -1 )
 // ADC SBC
-case ADC_Imm_69: ADC(cpu, cpu.immediate())
-case SBC_Imm_E9: SBC(cpu, cpu.immediate())
-case ADC_Zp_65: ADC( cpu, cpu.zeroPage());
-case SBC_Zp_E5: SBC( cpu, cpu.zeroPage());
-case ADC_Zp_X_75: ADC( cpu, cpu.zeroPageIndexed(cpu.X) ); _ZeroPageX(); brea;
-case SBC_Zp_X_F5: SBC( cpu, cpu.zeroPageIndexed(cpu.X) ); _ZeroPageX(); brea;
-case ADC_Abs_6D: ADC( cpu, cpu.absolute());
-case SBC_Abs_ED: SBC( cpu, cpu.absolute());
-case ADC_Abs_X_7D: ADC( cpu, cpu.absoluteIndexed(cpu.X) );
-case SBC_Abs_X_FD: SBC( cpu, cpu.absoluteIndexed(cpu.X) );
-case ADC_Abs_Y_79: ADC( cpu, cpu.absoluteIndexed(cpu.Y) );
-case SBC_Abs_Y_F9: SBC( cpu, cpu.absoluteIndexed(cpu.Y) );
-case ADC_IndexIndirX_61: ADC( cpu, cpu.indexedIndirectX() );
-case SBC_IndexIndirX_E1: SBC( cpu, cpu.indexedIndirectX() );
-case ADC_IndirIndexY_71: ADC( cpu, cpu.indirectIndexedY() );
-case SBC_IndirIndexY_F1: SBC( cpu, cpu.indirectIndexedY() );
+case ADC_Imm_69: cpu.adc(cpu.immediate())
+case SBC_Imm_E9: cpu.sbc(cpu.immediate())
+case ADC_Zp_65: cpu.adc(cpu.zeroPage())
+case SBC_Zp_E5: cpu.sbc(cpu.zeroPage())
+case ADC_Zp_X_75: cpu.adc(cpu.zeroPageIndexed(cpu.X))
+case SBC_Zp_X_F5: cpu.sbc(cpu.zeroPageIndexed(cpu.X))
+case ADC_Abs_6D: cpu.adc(cpu.absolute())
+case SBC_Abs_ED: cpu.sbc(cpu.absolute())
+case ADC_Abs_X_7D: cpu.adc(cpu.absoluteIndexed(cpu.X) 
+case SBC_Abs_X_FD: cpu.sbc(cpu.absoluteIndexed(cpu.X))
+case ADC_Abs_Y_79: cpu.adc(cpu.absoluteIndexed(cpu.Y))
+case SBC_Abs_Y_F9: cpu.sbc(cpu.absoluteIndexed(cpu.Y))
+case ADC_IndexIndirX_61: cpu.adc(cpu.indexedIndirectX())
+case SBC_IndexIndirX_E1: cpu.sbc(cpu.indexedIndirectX())
+case ADC_IndirIndexY_71: cpu.adc(cpu.indirectIndexedY())
+case SBC_IndirIndexY_F1: cpu.sbc(cpu.indirectIndexedY())
 // CMP CPX CPY
-case CMP_Imm_C9: CPr( cpu, cpu->a, cpu.immediate())
-case CPX_Imm_E0: CPr( cpu, cpu->x, cpu.immediate())
-case CPY_Imm_C0: CPr( cpu, cpu->y, cpu.immediate())
-case CMP_Zp_C5: CPr( cpu, cpu->a, cpu.zeroPage());
-case CPX_Zp_E4: CPr( cpu, cpu->x, cpu.zeroPage());
-case CPY_Zp_C4: CPr( cpu, cpu->y, cpu.zeroPage());
-case CMP_Zp_X_D5: CPr( cpu, cpu->a, cpu.zeroPageIndexed(cpu.X) ); _ZeroPageX(); brea;
-case CMP_Abs_CD: CPr( cpu, cpu->a, cpu.absolute());
-case CPX_Abs_EC: CPr( cpu, cpu->x, cpu.absolute());
-case CPY_Abs_CC: CPr( cpu, cpu->y, cpu.absolute());
-case CMP_Abs_X_DD: CPr( cpu, cpu->a, cpu.absoluteIndexed(cpu.X) );
-case CMP_Abs_Y_D9: CPr( cpu, cpu->a, cpu.absoluteIndexed(cpu.Y) );
-case CMP_IndexIndirX_C1: CPr( cpu, cpu->a, cpu.indexedIndirectX() );
-case CMP_IndirIndexY_D1: CPr( cpu, cpu->a, cpu.indirectIndexedY() );
+case CMP_Imm_C9: cpu.compare(cpu.A, cpu.immediate())
+case CPX_Imm_E0: cpu.compare(cpu.X, cpu.immediate())
+case CPY_Imm_C0: cpu.compare(cpu.Y, cpu.immediate())
+case CMP_Zp_C5: cpu.compare(cpu.A, cpu.zeroPage())
+case CPX_Zp_E4: cpu.compare(cpu.X, cpu.zeroPage())
+case CPY_Zp_C4: cpu.compare(cpu.Y, cpu.zeroPage())
+case CMP_Zp_X_D5: cpu.compare(cpu.A, cpu.zeroPageIndexed(cpu.X))
+case CMP_Abs_CD: cpu.compare(cpu.A, cpu.absolute())
+case CPX_Abs_EC: cpu.compare(cpu.X, cpu.absolute())
+case CPY_Abs_CC: cpu.compare(cpu.Y, cpu.absolute())
+case CMP_Abs_X_DD: cpu.compare(cpu.A, cpu.absoluteIndexed(cpu.X))
+case CMP_Abs_Y_D9: cpu.compare(cpu.A, cpu.absoluteIndexed(cpu.Y))
+case CMP_IndexIndirX_C1: cpu.compare(cpu.A, cpu.indexedIndirectX())
+case CMP_IndirIndexY_D1: cpu.compare(cpu.A, cpu.indirectIndexedY())
 // ASL LSR ROR ROL
 case ASL_Acu_0A: ASLa( cpu );
 case LSR_Acu_4A: LSRa( cpu );

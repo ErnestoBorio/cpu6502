@@ -140,14 +140,14 @@ func (cpu *Cpu) CpuStep() {
 		case EOR_IndirIndexY_51: cpu.eor(cpu.indirectIndexedY())
 		case ORA_IndirIndexY_11: cpu.ora(cpu.indirectIndexedY())
 		// Branches
-		case BEQ_Relative_F0: cpu.branch(cpu.Status.Zero, 1, cpu.immediate())
-		case BNE_Relative_D0: cpu.branch(cpu.Status.Zero, 0, cpu.immediate())
-		case BMI_Relative_30: cpu.branch(cpu.Status.Negative, 1, cpu.immediate())
-		case BPL_Relative_10: cpu.branch(cpu.Status.Negative, 0, cpu.immediate())
-		case BCS_Relative_B0: cpu.branch(cpu.Status.Carry, 1, cpu.immediate())
-		case BCC_Relative_90: cpu.branch(cpu.Status.Carry, 0, cpu.immediate())
-		case BVS_Relative_70: cpu.branch(cpu.Status.Overflow, 1, cpu.immediate())
-		case BVC_Relative_50: cpu.branch(cpu.Status.Overflow, 0, cpu.immediate())
+		case BEQ_Relative_F0: cpu.branch(cpu.Status.Zero, true, cpu.immediate())
+		case BNE_Relative_D0: cpu.branch(cpu.Status.Zero, false, cpu.immediate())
+		case BMI_Relative_30: cpu.branch(cpu.Status.Negative, true, cpu.immediate())
+		case BPL_Relative_10: cpu.branch(cpu.Status.Negative, false, cpu.immediate())
+		case BCS_Relative_B0: cpu.branch(cpu.Status.Carry, true, cpu.immediate())
+		case BCC_Relative_90: cpu.branch(cpu.Status.Carry, false, cpu.immediate())
+		case BVS_Relative_70: cpu.branch(cpu.Status.Overflow, true, cpu.immediate())
+		case BVC_Relative_50: cpu.branch(cpu.Status.Overflow, false, cpu.immediate())
 		// Status flags
 		case SEC_38: cpu.Status.Carry = true
 		case CLC_18: cpu.Status.Carry = false
@@ -157,10 +157,10 @@ func (cpu *Cpu) CpuStep() {
 		case CLI_58: cpu.Status.IntDis = false
 		case CLV_B8: cpu.Status.Overflow = false
 		// Stack
-		case PHP_08: PHP( cpu )
-		case PHA_48: push( cpu, cpu.A )
-		case PLP_28: PLP( cpu )
-		case PLA_68: PLA( cpu )
+		case PHP_08: cpu.php()
+		case PLP_28: cpu.plp()
+		case PHA_48: cpu.pha()
+		case PLA_68: cpu.pla()
 		// Misc
 		case JMP_Abs_4C: JMPabs( cpu, operand )
 		case JMP_Indirect_6C: JMPind( cpu, operand )

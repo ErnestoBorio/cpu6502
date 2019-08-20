@@ -8,8 +8,8 @@ func (cpu *Cpu) immediate() byte {
 }
 
 // Returns zero page address from PC's following byte
-func (cpu *Cpu) zeroPageAddress() byte {
-	address := cpu.readMemory[cpu.PC](cpu.PC)
+func (cpu *Cpu) zeroPageAddress() word {
+	address := word(cpu.readMemory[cpu.PC](cpu.PC))
 	cpu.PC++
 	return address
 }
@@ -17,18 +17,18 @@ func (cpu *Cpu) zeroPageAddress() byte {
 // TODO: altering the PC before calling ReadMemory can have bad side effects?
 func (cpu *Cpu) zeroPage() byte {
 	address := cpu.zeroPageAddress()
-	return cpu.readMemory[address](word(address))
+	return cpu.readMemory[address](address)
 }
 
-func (cpu *Cpu) zeroPageIndexedAddress(index byte) byte {
-	address := cpu.readMemory[cpu.PC](cpu.PC) + index
+func (cpu *Cpu) zeroPageIndexedAddress(index byte) word {
+	address := word(cpu.readMemory[cpu.PC](cpu.PC) + index)
 	cpu.PC++
 	return address
 }
 
 func (cpu *Cpu) zeroPageIndexed(index byte) byte {
 	address := cpu.zeroPageIndexedAddress(index)
-	return cpu.readMemory[address](word(address))
+	return cpu.readMemory[address](address)
 }
 
 // Returns absolute address from PC's following 2 bytes

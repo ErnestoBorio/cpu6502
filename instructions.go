@@ -1,8 +1,13 @@
 package cpu6502
 
+const rightmostBit = 1
+const leftmostBit = 1<<7
+const bit6 = 1<<6
+const signBit = leftmostBit
+
 func (cpu *Cpu) calculateZeroNegative(value byte) {
-	cpu.Status.Zero = (value == 0)
-	cpu.Status.Negative = ((value & signBit) != 0)
+	cpu.Status.Zero = value == 0
+	cpu.Status.Negative = value & signBit != 0
 }
 
 // LDA LDX LDY
@@ -99,4 +104,79 @@ func (cpu *Cpu) lsr(address word) {
 	value = value >>1
 	cpu.calculateZeroNegative(value)
 	cpu.writeMemory[address](address, value)
+}
+
+// ROL A
+func (cpu *Cpu) rola() {
+	oldCarry := byte(0)
+	if cpu.Status.Carry {
+		oldCarry = 1
+	}
+	cpu.Status.Carry = (cpu.A & leftmostBit) > 0
+	cpu.A = ( cpu.A <<1 ) | oldCarry
+	cpu.calculateZeroNegative(cpu.A)
+	cpu.PC++
+}
+
+// ROL
+func (cpu *Cpu) rol(address word) {
+	value := cpu.readMemory[address](address)
+	oldCarry := byte(0)
+	if cpu.Status.Carry {
+		oldCarry = 1
+	}
+	cpu.Status.Carry = (value & leftmostBit) > 0
+	value = ( value <<1 ) | oldCarry
+	cpu.calculateZeroNegative(value)
+	cpu.writeMemory[address](address, value)
+}
+
+// ROR A
+func (cpu *Cpu) rora() {
+	oldCarry := byte(0)
+	cpu.Status.Carry = (cpu.A & rightmostBit) > 0
+	cpu.A = (cpu.A >>1) | (oldCarry <<7)
+	cpu.calculateZeroNegative(cpu.A)
+	cpu.PC++
+}
+
+// ROR
+func (cpu *Cpu) ror(address word) {
+	value := cpu.readMemory[address](address)
+	oldCarry := byte(0)
+	cpu.Status.Carry = (value & rightmostBit) > 0
+	value = (value >>1) | (oldCarry <<7)
+	cpu.calculateZeroNegative(value)
+	cpu.writeMemory[address](address, value)
+}
+
+// TAX TXA TAY TYA TSX
+func (cpu *Cpu) transferRegister(from byte, to *byte) {
+	*to = from
+	cpu.calculateZeroNegative(from)
+}
+
+// AND
+func (cpu *Cpu) and(value byte) {
+	cpu.A &= value
+	cpu.calculateZeroNegative(cpu.A)
+}
+
+// EOR
+func (cpu *Cpu) eor(value byte) {
+	cpu.A ^= value
+	cpu.calculateZeroNegative(cpu.A)
+}
+
+// ORA
+func (cpu *Cpu) ora(value byte) {
+	cpu.A |= value
+	cpu.calculateZeroNegative(cpu.A)
+}
+
+// BIT
+func (cpu *Cpu) bit(value byte) {
+	cpu.Status.Zero =     value & cpu.A == 0
+	cpu.Status.Overflow = value & bit6 != 0
+	cpu.Status.Negative = value & signBit != 0
 }

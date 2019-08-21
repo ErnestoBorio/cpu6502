@@ -251,6 +251,7 @@ func (cpu *Cpu) php() {
 	cpu.push(flags)
 }
 
+// PLP
 func (cpu *Cpu) plp() {
 	flags := cpu.pull()
 	cpu.Status.Carry    = flags & (1<<0) != 0
@@ -276,6 +277,7 @@ func (cpu *Cpu) jumpIndirect() {
 	cpu.PC = cpu.getWord(pointer)
 }
 
+// JSR
 func (cpu *Cpu) jsr() {
 	// return address is off by -1, pointing to JSR's last byte.
 	// Will be fixed on RTS
@@ -285,18 +287,21 @@ func (cpu *Cpu) jsr() {
 	cpu.PC = cpu.getWord(cpu.PC) // Jump
 }
 
+// RTS
 func (cpu *Cpu) rts() {
 	cpu.PC = word(cpu.pull())
 	cpu.PC |= word(cpu.pull()) <<8
 	cpu.PC++ // Fix JSR's off by -1 return address
 }
 
+// RTI
 func (cpu *Cpu) rti() {
 	cpu.plp()
 	cpu.PC = word(cpu.pull())
 	cpu.PC |= word(cpu.pull()) <<8
 }
 
+// BRK
 func (cpu *Cpu) irq(brk bool) {
 	cpu.cycles = 7
 	cpu.push( byte( cpu.PC >>8)) // PC's high byte
@@ -320,7 +325,15 @@ func (cpu *Cpu) IRQ() {
 	}
 }
 
-
+func (cpu *Cpu) NMI() {
+	cpu.cycles = 7
+	cpu.push( byte( cpu.PC >>8)) // PC's high byte
+	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
+	cpu.push(cpu.packStatus())
+	// Marat Fayzullin and others clear the decimal mode here
+	cpu.Status.IntDis = true // TODO: Marat Fayzullin doesn't do this
+	cpu.PC = cpu.getWord(0xFFFA) // Jump to NMI vector
+}
 
 
 var opcodeCycles = [0x100] byte {

@@ -185,7 +185,7 @@ const (
 // Jumps & Calls
 	// JMP - Jump
 	JMP_Abs_4C = 0x4C
-	JMP_Indirect_6C = 0x6C
+	JMP_Ind_6C = 0x6C
 		
 	// JSR - Jump to Subroutine
 	JSR_20 = 0x20

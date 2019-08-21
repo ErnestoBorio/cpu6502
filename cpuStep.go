@@ -2,8 +2,9 @@ package cpu6502
 
 func (cpu *Cpu) CpuStep() {
 	opcode := cpu.readMemory[cpu.PC](cpu.PC)
+	cpu.PC++
 	cpu.cycles = opcodeCycles[opcode]
-	// TODO: byte following PC is read in advance. Test
+	// TODO: byte following PC is read in advance. Test it
 
 	switch opcode {
 		// LDA LDX LDY
@@ -70,16 +71,16 @@ func (cpu *Cpu) CpuStep() {
 		case ADC_IndirIndexY_71: cpu.adc(cpu.indirectIndexedY())
 		case SBC_IndirIndexY_F1: cpu.sbc(cpu.indirectIndexedY())
 		// CMP CPX CPY
-		case CMP_Imm_C9: cpu.compare(cpu.A, cpu.immediate())
-		case CPX_Imm_E0: cpu.compare(cpu.X, cpu.immediate())
-		case CPY_Imm_C0: cpu.compare(cpu.Y, cpu.immediate())
-		case CMP_Zp_C5: cpu.compare(cpu.A, cpu.zeroPage())
-		case CPX_Zp_E4: cpu.compare(cpu.X, cpu.zeroPage())
-		case CPY_Zp_C4: cpu.compare(cpu.Y, cpu.zeroPage())
-		case CMP_ZpX_D5: cpu.compare(cpu.A, cpu.zeroPageIndexed(cpu.X))
-		case CMP_Abs_CD: cpu.compare(cpu.A, cpu.absolute())
-		case CPX_Abs_EC: cpu.compare(cpu.X, cpu.absolute())
-		case CPY_Abs_CC: cpu.compare(cpu.Y, cpu.absolute())
+		case CMP_Imm_C9:  cpu.compare(cpu.A, cpu.immediate())
+		case CPX_Imm_E0:  cpu.compare(cpu.X, cpu.immediate())
+		case CPY_Imm_C0:  cpu.compare(cpu.Y, cpu.immediate())
+		case CMP_Zp_C5:   cpu.compare(cpu.A, cpu.zeroPage())
+		case CPX_Zp_E4:   cpu.compare(cpu.X, cpu.zeroPage())
+		case CPY_Zp_C4:   cpu.compare(cpu.Y, cpu.zeroPage())
+		case CMP_ZpX_D5:  cpu.compare(cpu.A, cpu.zeroPageIndexed(cpu.X))
+		case CMP_Abs_CD:  cpu.compare(cpu.A, cpu.absolute())
+		case CPX_Abs_EC:  cpu.compare(cpu.X, cpu.absolute())
+		case CPY_Abs_CC:  cpu.compare(cpu.Y, cpu.absolute())
 		case CMP_AbsX_DD: cpu.compare(cpu.A, cpu.absoluteIndexed(cpu.X))
 		case CMP_AbsY_D9: cpu.compare(cpu.A, cpu.absoluteIndexed(cpu.Y))
 		case CMP_IndexIndirX_C1: cpu.compare(cpu.A, cpu.indexedIndirectX())
@@ -113,20 +114,20 @@ func (cpu *Cpu) CpuStep() {
 		case TSX_BA: cpu.transferRegister(cpu.Stack, &cpu.X)
 		case TXS_9A: cpu.Stack = cpu.X; // TXS doesn't affect status flags
 		// AND EOR ORA BIT
-		case AND_Imm_29:   cpu.and(cpu.immediate())
-		case EOR_Imm_49:   cpu.eor(cpu.immediate())
-		case ORA_Imm_09:   cpu.ora(cpu.immediate())
-		case AND_Zp_25:    cpu.and(cpu.zeroPage())
-		case EOR_Zp_45:    cpu.eor(cpu.zeroPage())
-		case ORA_Zp_05:    cpu.ora(cpu.zeroPage())
-		case BIT_Zp_24:    cpu.bit(cpu.zeroPage())
+		case AND_Imm_29:  cpu.and(cpu.immediate())
+		case EOR_Imm_49:  cpu.eor(cpu.immediate())
+		case ORA_Imm_09:  cpu.ora(cpu.immediate())
+		case AND_Zp_25:   cpu.and(cpu.zeroPage())
+		case EOR_Zp_45:   cpu.eor(cpu.zeroPage())
+		case ORA_Zp_05:   cpu.ora(cpu.zeroPage())
+		case BIT_Zp_24:   cpu.bit(cpu.zeroPage())
 		case AND_ZpX_35:  cpu.and(cpu.zeroPageIndexed(cpu.X))
 		case EOR_ZpX_55:  cpu.eor(cpu.zeroPageIndexed(cpu.X))
 		case ORA_ZpX_15:  cpu.ora(cpu.zeroPageIndexed(cpu.X))
-		case AND_Abs_2D:   cpu.and(cpu.absolute())
-		case EOR_Abs_4D:   cpu.eor(cpu.absolute())
-		case ORA_Abs_0D:   cpu.ora(cpu.absolute())
-		case BIT_Abs_2C:   cpu.bit(cpu.absolute())
+		case AND_Abs_2D:  cpu.and(cpu.absolute())
+		case EOR_Abs_4D:  cpu.eor(cpu.absolute())
+		case ORA_Abs_0D:  cpu.ora(cpu.absolute())
+		case BIT_Abs_2C:  cpu.bit(cpu.absolute())
 		case AND_AbsX_3D: cpu.and(cpu.absoluteIndexed(cpu.X))
 		case EOR_AbsX_5D: cpu.eor(cpu.absoluteIndexed(cpu.X))
 		case ORA_AbsX_1D: cpu.ora(cpu.absoluteIndexed(cpu.X))
@@ -149,25 +150,25 @@ func (cpu *Cpu) CpuStep() {
 		case BVS_Relative_70: cpu.branch(cpu.Status.Overflow, true, cpu.immediate())
 		case BVC_Relative_50: cpu.branch(cpu.Status.Overflow, false, cpu.immediate())
 		// Status flags
-		case SEC_38: cpu.Status.Carry = true
-		case CLC_18: cpu.Status.Carry = false
-		case CLD_D8: cpu.Status.Decimal = false
-		case SED_F8: cpu.Status.Decimal = true
-		case SEI_78: cpu.Status.IntDis = true
-		case CLI_58: cpu.Status.IntDis = false
+		case CLC_18: cpu.Status.Carry    = false
+		case SEC_38: cpu.Status.Carry    = true
+		case CLI_58: cpu.Status.IntDis   = false
+		case SEI_78: cpu.Status.IntDis   = true
+		case CLD_D8: cpu.Status.Decimal  = false
+		case SED_F8: cpu.Status.Decimal  = true
 		case CLV_B8: cpu.Status.Overflow = false
 		// Stack
 		case PHP_08: cpu.php()
 		case PLP_28: cpu.plp()
-		case PHA_48: cpu.pha()
+		case PHA_48: cpu.push(cpu.A)
 		case PLA_68: cpu.pla()
 		// Misc
-		case JMP_Abs_4C: JMPabs( cpu, operand )
-		case JMP_Indirect_6C: JMPind( cpu, operand )
-		case JSR_20: JSR( cpu, operand )
-		case RTS_60: RTS( cpu )
-		case RTI_40: RTI( cpu )
+		case JMP_Abs_4C: cpu.jumpAbsolute()
+		case JMP_Ind_6C: cpu.jumpIndirect()
+		case JSR_20: cpu.jsr()
+		case RTI_40: cpu.rti()
+		case RTS_60: cpu.rts()
+		case BRK_00: cpu.PC++; cpu.irq(true)
 		case NOP_EA:
-		case BRK_00: cpu.PC += 2; IRQ( cpu, 1 )
 	}
 }

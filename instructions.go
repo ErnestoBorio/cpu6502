@@ -1,10 +1,11 @@
 package cpu6502
 
 const rightmostBit = 1
-const leftmostBit = 1<<7
-const bit6 = 1<<6
-const signBit = leftmostBit
-const highByte = 0xFF00
+const leftmostBit  = 1<<7
+const bit6         = 1<<6
+const signBit      = leftmostBit
+const highByte     = 0xFF00
+const lowByte      = 0xFF
 
 func (cpu *Cpu) calculateZeroNegative(value byte) {
 	cpu.Status.Zero = value == 0
@@ -200,27 +201,26 @@ func (cpu *Cpu) branch(flag bool, condition bool, jump byte) {
 	}
 }
 
-// PHA
-func (cpu *Cpu) pha() {
+func (cpu *Cpu) push(value byte) {
 	stack := 0x100 + word(cpu.Stack)
-	cpu.writeMemory[stack](stack, cpu.A)
+	cpu.writeMemory[stack](stack, value)
 	cpu.Stack--
+}
+
+func (cpu *Cpu) pull() byte {
+	cpu.Stack++
+	stack := 0x100 + word(cpu.Stack)
+	return cpu.readMemory[stack](stack)
 }
 
 // PLA
 func (cpu *Cpu) pla() {
-	cpu.Stack++
-	stack := 0x100 + word(cpu.Stack)
-	cpu.A = cpu.readMemory[stack](stack)
+	cpu.A = cpu.pull()
+	cpu.calculateZeroNegative(cpu.A)
 }
 
-// PHP
-func (cpu *Cpu) php() {
-	// http://nesdev.com/the 'B' flag & BRK instruction.txt
-	// According to Brad Taylor PHP pushes the break flag as 1
-	// Also the unused flag bit 5 is always 0
-	flags := byte(0x30)
-
+func (cpu *Cpu) packStatus() byte {
+	flags := byte(1<<5) // unused bit 5 always set
 	if cpu.Status.Carry {
 		flags |= 1
 	}
@@ -239,11 +239,89 @@ func (cpu *Cpu) php() {
 	if cpu.Status.Negative {
 		flags |= 1<<7
 	}
-
-	stack := 0x100 + word(cpu.Stack)
-	cpu.writeMemory[stack](stack, flags)
-	cpu.Stack--
+	return flags
 }
+
+// PHP
+func (cpu *Cpu) php() {
+	// http://nesdev.com/the 'B' flag & BRK instruction.txt
+	// According to Brad Taylor PHP pushes the break flag as 1
+	// Also the unused flag bit 5 is always 1
+	flags := cpu.packStatus() | (1<<4) | (1<<5)
+	cpu.push(flags)
+}
+
+func (cpu *Cpu) plp() {
+	flags := cpu.pull()
+	cpu.Status.Carry    = flags & (1<<0) != 0
+	cpu.Status.Zero     = flags & (1<<1) != 0
+	cpu.Status.IntDis   = flags & (1<<2) != 0
+	cpu.Status.Decimal  = flags & (1<<3) != 0
+	cpu.Status.Overflow = flags & (1<<6) != 0
+	cpu.Status.Negative = flags & (1<<7) != 0
+}
+
+func (cpu *Cpu) getWord(address word) word {
+	value := word( cpu.readMemory[address](address))
+	value |= word( cpu.readMemory[address+1](address+1)) <<8
+	return value
+}
+
+func (cpu *Cpu) jumpAbsolute() {
+	cpu.PC = cpu.getWord(cpu.PC)
+}
+
+func (cpu *Cpu) jumpIndirect() {
+	pointer := cpu.getWord(cpu.PC)
+	cpu.PC = cpu.getWord(pointer)
+}
+
+func (cpu *Cpu) jsr() {
+	// return address is off by -1, pointing to JSR's last byte.
+	// Will be fixed on RTS
+	returnAddress := cpu.PC + 1
+	cpu.push( byte( returnAddress >>8)) // address' high byte
+	cpu.push( byte( returnAddress & lowByte)) // address' low byte
+	cpu.PC = cpu.getWord(cpu.PC) // Jump
+}
+
+func (cpu *Cpu) rts() {
+	cpu.PC = word(cpu.pull())
+	cpu.PC |= word(cpu.pull()) <<8
+	cpu.PC++ // Fix JSR's off by -1 return address
+}
+
+func (cpu *Cpu) rti() {
+	cpu.plp()
+	cpu.PC = word(cpu.pull())
+	cpu.PC |= word(cpu.pull()) <<8
+}
+
+func (cpu *Cpu) irq(brk bool) {
+	cpu.cycles = 7
+	cpu.push( byte( cpu.PC >>8)) // PC's high byte
+	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
+	
+	flags := cpu.packStatus()
+	if brk { // set the break virtual flag
+		flags |= 1<<4
+	}
+	cpu.push(flags)
+	// TODO: DarcNES unsets decimal flag here, other sources don't
+	// "NMOS 6502 do not clear the decimal mode flag when an interrupt occurs"
+	// Marat Fayzullin and others clear the decimal mode here
+	cpu.Status.IntDis = true
+	cpu.PC = cpu.getWord(0xFFFE) // Jump to IRQ/BRK vector
+}
+
+func (cpu *Cpu) IRQ() {
+	if ! cpu.Status.IntDis {
+		cpu.irq(false)
+	}
+}
+
+
+
 
 var opcodeCycles = [0x100] byte {
 //  0 1 2 3 4 5 6 7 8 9 A B C D E F

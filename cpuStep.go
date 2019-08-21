@@ -162,13 +162,17 @@ func (cpu *Cpu) CpuStep() {
 		case PLP_28: cpu.plp()
 		case PHA_48: cpu.push(cpu.A)
 		case PLA_68: cpu.pla()
-		// Misc
+		// Jumps
 		case JMP_Abs_4C: cpu.jumpAbsolute()
 		case JMP_Ind_6C: cpu.jumpIndirect()
 		case JSR_20: cpu.jsr()
 		case RTI_40: cpu.rti()
 		case RTS_60: cpu.rts()
+		// The 6502 skips the byte following BRK, so it's like a 2 byte instruction
 		case BRK_00: cpu.PC++; cpu.irq(true)
-		case NOP_EA:
+		case NOP_EA, 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: // implied undocumented NOPs
+		case 0x0C, 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC: cpu.PC += 2 // absolute undoc NOPs
+		case 0x80, 0x82, 0x89, 0xC2, 0xE2, 0x04, 0x14, 0x34, 0x44, 
+		     0x54, 0x64, 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs
 	}
 }

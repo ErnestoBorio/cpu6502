@@ -1,5 +1,7 @@
 package cpu6502
 
+// opcode information taken from:
+// http://www.obelisk.demon.co.uk/6502/reference.html
 const (
 // Load/Store Operations
 	// LDA - Load Accumulator

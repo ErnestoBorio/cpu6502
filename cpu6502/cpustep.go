@@ -1,6 +1,6 @@
 package cpu6502
 
-func (cpu *Cpu) CpuStep() {
+func (cpu *Cpu) Step() {
 	opcode := cpu.readMemory[cpu.PC](cpu.PC)
 	cpu.PC++
 	cpu.cycles = opcodeCycles[opcode]
@@ -168,11 +168,32 @@ func (cpu *Cpu) CpuStep() {
 		case JSR_20: cpu.jsr()
 		case RTI_40: cpu.rti()
 		case RTS_60: cpu.rts()
-		// The 6502 skips the byte following BRK, so it's like a 2 byte instruction
+		// The byte following BRK is skipped, so it's like a 2 byte instruction
 		case BRK_00: cpu.PC++; cpu.irq(true)
 		case NOP_EA, 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: // implied undocumented NOPs
 		case 0x0C, 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC: cpu.PC += 2 // absolute undoc NOPs
-		case 0x80, 0x82, 0x89, 0xC2, 0xE2, 0x04, 0x14, 0x34, 0x44, 
-		     0x54, 0x64, 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs
+		case 0x80, 0x82, 0x89, 0xC2, 0xE2, 0x04, 0x14, 0x34, 0x44, 0x54, 0x64, 
+			 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs
+		default: panic("Undocumented opcode")
 	}
 }
+
+
+var opcodeCycles = [0x100] byte {
+//  0 1 2 3 4 5 6 7 8 9 A B C D E F
+	0,6,2,8,3,3,5,5,3,2,2,2,4,4,6,6, //00
+	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //10
+	6,6,2,8,3,3,5,5,4,2,2,2,4,4,6,6, //20
+	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //30
+	6,6,2,8,3,3,5,5,3,2,2,2,3,4,6,6, //40
+	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //50
+	6,6,2,8,3,3,5,5,4,2,2,2,5,4,6,6, //60
+	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //70
+	2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4, //80
+	2,6,2,6,4,4,4,4,2,5,2,5,5,5,5,5, //90
+	2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4, //A0
+	2,5,2,5,4,4,4,4,2,4,2,4,4,4,4,4, //B0
+	2,6,2,8,3,3,5,5,2,2,2,2,4,4,6,6, //C0
+	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //D0
+	2,6,3,8,3,3,5,5,2,2,2,2,4,4,6,6, //E0
+	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7} //F0

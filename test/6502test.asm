@@ -10,7 +10,7 @@
 ; Use the following special addresses in your emulator:
 ; 
 ; $10: Number of the last test ran (1 byte)
-; $500: If PC reaches here, all tests ran successfuly;
+; $500: If PC reaches here, all tests ran successfuly
 ; $600: If PC reaches here, the last test ran failed
 ; $700: Reset or point PC here to start the tests
 ; $A000: When PC reaches here, your emulator should trigger an IRQ
@@ -65,7 +65,7 @@ indx_indr_target: .byte $BD
 ind_ind_target_wrap:
    .byte $AC ; For indexed indirect X
    .byte 0, 0, 0, 0, 0
-   .byte $DE ; For indirect indeced Y
+   .byte $DE ; For indirect indexed Y
 
    ORG $2F0
 indr_indx_target: 

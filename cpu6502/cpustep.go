@@ -150,13 +150,13 @@ func (cpu *Cpu) Step() {
 		case BVS_Relative_70: cpu.branch(cpu.Status.Overflow, true, cpu.immediate())
 		case BVC_Relative_50: cpu.branch(cpu.Status.Overflow, false, cpu.immediate())
 		// Status flags
-		case CLC_18: cpu.Status.Carry    = false
-		case SEC_38: cpu.Status.Carry    = true
-		case CLI_58: cpu.Status.IntDis   = false
-		case SEI_78: cpu.Status.IntDis   = true
-		case CLD_D8: cpu.Status.Decimal  = false
-		case SED_F8: cpu.Status.Decimal  = true
-		case CLV_B8: cpu.Status.Overflow = false
+		case CLC_18: cpu.Status.Carry       = false
+		case SEC_38: cpu.Status.Carry       = true
+		case CLI_58: cpu.Status.NoInterrupt = false
+		case SEI_78: cpu.Status.NoInterrupt = true
+		case CLD_D8: cpu.Status.Decimal     = false
+		case SED_F8: cpu.Status.Decimal     = true
+		case CLV_B8: cpu.Status.Overflow    = false
 		// Stack
 		case PHP_08: cpu.php()
 		case PLP_28: cpu.plp()

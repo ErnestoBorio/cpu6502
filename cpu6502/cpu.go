@@ -14,9 +14,9 @@ type Cpu struct {
 		Zero     bool
 		Carry    bool
 		Decimal  bool
-		IntDis   bool
 		Overflow bool
 		Negative bool
+		NoInterrupt bool
 	}
 
 	cycles byte // Cycle count of the last executed instruction [1..7]
@@ -37,10 +37,10 @@ func (cpu *Cpu) Init() *Cpu {
 	cpu.Y = 0
 	cpu.Status.Zero     = false
 	cpu.Status.Carry    = false
-	cpu.Status.IntDis   = true
 	cpu.Status.Decimal  = false
 	cpu.Status.Overflow = false
 	cpu.Status.Negative = false
+	cpu.Status.NoInterrupt = true
 	return cpu
 }
 
@@ -72,7 +72,7 @@ func (cpu *Cpu) Reset() {
 
 // Trigger an external IRQ interrupt
 func (cpu *Cpu) IRQ() {
-	if ! cpu.Status.IntDis {
+	if ! cpu.Status.NoInterrupt {
 		cpu.irq(false)
 	}
 }
@@ -84,6 +84,6 @@ func (cpu *Cpu) NMI() {
 	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
 	cpu.push(cpu.packStatus())
 	// Marat Fayzullin and others clear the decimal mode here
-	cpu.Status.IntDis = true // TODO: Marat Fayzullin doesn't do this
+	cpu.Status.NoInterrupt = true // TODO: Marat Fayzullin doesn't do this
 	cpu.PC = cpu.getWord(0xFFFA) // Jump to NMI vector
 }

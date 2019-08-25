@@ -224,7 +224,7 @@ func (cpu *Cpu) packStatus() byte {
 	if cpu.Status.Zero {
 		flags |= 1<<1
 	}
-	if cpu.Status.IntDis {
+	if cpu.Status.NoInterrupt {
 		flags |= 1<<2
 	}
 	if cpu.Status.Decimal {
@@ -251,12 +251,12 @@ func (cpu *Cpu) php() {
 // PLP
 func (cpu *Cpu) plp() {
 	flags := cpu.pull()
-	cpu.Status.Carry    = flags & (1<<0) != 0
-	cpu.Status.Zero     = flags & (1<<1) != 0
-	cpu.Status.IntDis   = flags & (1<<2) != 0
-	cpu.Status.Decimal  = flags & (1<<3) != 0
-	cpu.Status.Overflow = flags & (1<<6) != 0
-	cpu.Status.Negative = flags & (1<<7) != 0
+	cpu.Status.Carry       = flags & (1<<0) != 0
+	cpu.Status.Zero        = flags & (1<<1) != 0
+	cpu.Status.NoInterrupt = flags & (1<<2) != 0
+	cpu.Status.Decimal     = flags & (1<<3) != 0
+	cpu.Status.Overflow    = flags & (1<<6) != 0
+	cpu.Status.Negative    = flags & (1<<7) != 0
 }
 
 func (cpu *Cpu) getWord(address word) word {
@@ -322,6 +322,6 @@ func (cpu *Cpu) irq(brk bool) {
 	// TODO: DarcNES unsets decimal flag here, other sources don't
 	// "NMOS 6502 do not clear the decimal mode flag when an interrupt occurs"
 	// Marat Fayzullin and others clear the decimal mode here
-	cpu.Status.IntDis = true
+	cpu.Status.NoInterrupt = true
 	cpu.PC = cpu.getWord(0xFFFE) // Jump to IRQ/BRK vector
 }

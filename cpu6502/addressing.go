@@ -78,12 +78,12 @@ func (cpu *Cpu) indexedIndirectX() byte {
 func (cpu *Cpu) indirectIndexedYaddress() word {
 	base := cpu.readMemory[cpu.PC](cpu.PC)
 	cpu.PC++
-	address := word(base) + word(cpu.Y)
+	address := word(cpu.readMemory[base](word(base))) + word(cpu.Y)
 	if address > 0xFF {
 		cpu.cycles++
 	}
 	base++
-	return address | (word(cpu.readMemory[base](word(base))) <<8)
+	return address + (word(cpu.readMemory[base](word(base))) <<8)
 }
 
 func (cpu *Cpu) indirectIndexedY() byte {

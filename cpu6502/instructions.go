@@ -27,7 +27,6 @@ func (cpu *Cpu) storeReg(value byte, address word) {
 func (cpu *Cpu) incDecReg(register *byte, delta int) {
 	*register += byte(delta)
 	cpu.calculateZeroNegative(*register)
-	cpu.PC++
 }
 
 // INC DEC
@@ -79,7 +78,6 @@ func (cpu *Cpu) asla() {
 	cpu.Status.Carry = (cpu.A & leftmostBit) == leftmostBit
 	cpu.A = cpu.A <<1
 	cpu.calculateZeroNegative(cpu.A)
-	cpu.PC++
 }
 
 // ASL
@@ -96,7 +94,6 @@ func (cpu *Cpu) lsra() {
 	cpu.Status.Carry = (cpu.A & rightmostBit) == rightmostBit
 	cpu.A = cpu.A >>1
 	cpu.calculateZeroNegative(cpu.A)
-	cpu.PC++
 }
 
 // LSR
@@ -117,7 +114,6 @@ func (cpu *Cpu) rola() {
 	cpu.Status.Carry = (cpu.A & leftmostBit) > 0
 	cpu.A = ( cpu.A <<1 ) | oldCarry
 	cpu.calculateZeroNegative(cpu.A)
-	cpu.PC++
 }
 
 // ROL
@@ -139,13 +135,15 @@ func (cpu *Cpu) rora() {
 	cpu.Status.Carry = (cpu.A & rightmostBit) > 0
 	cpu.A = (cpu.A >>1) | (oldCarry <<7)
 	cpu.calculateZeroNegative(cpu.A)
-	cpu.PC++
 }
 
 // ROR
 func (cpu *Cpu) ror(address word) {
 	value := cpu.readMemory[address](address)
 	oldCarry := byte(0)
+	if cpu.Status.Carry {
+		oldCarry = 1
+	}
 	cpu.Status.Carry = (value & rightmostBit) > 0
 	value = (value >>1) | (oldCarry <<7)
 	cpu.calculateZeroNegative(value)
@@ -185,7 +183,6 @@ func (cpu *Cpu) bit(value byte) {
 
 // BEQ BNE BPL BMI BVS BVC BCS BCC
 func (cpu *Cpu) branch(flag bool, condition bool, jump byte) {
-	cpu.PC += 2 // The branch is relative to next instruction's address
 	if flag == condition {
 		cpu.cycles++
 		oldPage := cpu.PC & highByte
@@ -276,7 +273,12 @@ func (cpu *Cpu) jumpAbsolute() {
 // JMP
 func (cpu *Cpu) jumpIndirect() {
 	pointer := cpu.getWord(cpu.PC)
-	cpu.PC = cpu.getWord(pointer)
+	cpu.PC = word(cpu.readMemory[pointer](pointer)) // low byte
+	if (pointer & lowByte) == 0xFF { // address wraps around page
+		pointer -= 0x100
+	}
+	pointer++
+	cpu.PC |= word(cpu.readMemory[pointer](pointer)) <<8 // high byte
 }
 
 // JSR
@@ -306,7 +308,7 @@ func (cpu *Cpu) rti() {
 	// TODO: should it set cpu.cycles = 6 ?
 }
 
-// BRK
+// BRK (brk = true) and IRQ interrupt (brk = false)
 func (cpu *Cpu) irq(brk bool) {
 	cpu.cycles = 7
 	cpu.push( byte( cpu.PC >>8)) // PC's high byte

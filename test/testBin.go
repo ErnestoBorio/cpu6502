@@ -20,7 +20,21 @@ func main() {
 	cpu.HookMemoryWriter(0, 0xFFFF, func(adr uint16, val byte) { mem[adr] = val })
 	
 	cpu.PC = Tests_Start
-	for stop := false; !stop; {
+	stop: for ;; {
+		switch cpu.PC {
+			case Trigger_IRQ:
+				cpu.PC++ // cheat: skip to next address to avoid re-firing interrupt
+				cpu.IRQ()
+			case Trigger_NMI:
+				cpu.PC++ // cheat: skip to next address to avoid re-firing interrupt
+				cpu.NMI()
+			case Tests_Fail:
+				fmt.Printf("Test %d failed :(\n", mem[Test_Number])
+				break stop
+			case Tests_Success:
+				fmt.Printf("All tests succeeded :)\n")
+				break stop
+		}
 		opcode := mem[cpu.PC]
 		addressing := addressings[opcode]
 		mnemonic := mnemonics[opcode]
@@ -33,31 +47,35 @@ func main() {
 			operand |= uint16(mem[cpu.PC+2]) <<8
 		}
 
-		fmt.Printf("%4X: %s ", cpu.PC, mnemonic)
+		fmt.Printf("%04X: %s ", cpu.PC, mnemonic)
 
 		switch addressing {
 			case _acu:
 				fmt.Println('A')
+			case _imm:
+				fmt.Printf("#%02X\n", operand)
 			case _zrp:
-				fmt.Printf("%2X\n", operand)
+				fmt.Printf("%02X\n", operand)
 			case _zpx:
-				fmt.Printf("%2X, X\n", operand)
+				fmt.Printf("%02X, X\n", operand)
 			case _zpy:
-				fmt.Printf("%2X, Y\n", operand)
+				fmt.Printf("%02X, Y\n", operand)
 			case _iix:
-				fmt.Printf("(%2X, X)\n", operand)
+				fmt.Printf("(%02X, X)\n", operand)
 			case _iiy:
-				fmt.Printf("(%2X), Y\n", operand)
+				fmt.Printf("(%02X), Y\n", operand)
 			case _rel:
-				fmt.Printf("%2X (%d)\n", operand, operand)
+				fmt.Printf("%02X {%d}\n", operand, operand)
 			case _abs:
-				fmt.Printf("%4X\n", operand)
+				fmt.Printf("%04X\n", operand)
 			case _abx:
-				fmt.Printf("%4X, X\n", operand)
+				fmt.Printf("%04X, X\n", operand)
 			case _aby:
-				fmt.Printf("%4X, Y\n", operand)
+				fmt.Printf("%04X, Y\n", operand)
 			case _ind:
-				fmt.Printf("(%4X)\n", operand)
+				fmt.Printf("(%04X)\n", operand)
+			case _imp:
+				fmt.Println()
 			default:
 				panic("No addressing?")
 		}
@@ -79,15 +97,15 @@ const (
 	// 1 byte instructions
 	_imp = 1
 	_acu = 2
-	_imm = 3
 	// 2 bytes instructions
 	_2bytes = 10
-	_zrp = 11
-	_zpx = 12
-	_zpy = 13
-	_iix = 14
-	_iiy = 15
-	_rel = 16
+	_imm = 11
+	_zrp = 12
+	_zpx = 13
+	_zpy = 14
+	_iix = 15
+	_iiy = 16
+	_rel = 17
 	// 3 bytes instructions
 	_3bytes = 20
 	_abs = 21

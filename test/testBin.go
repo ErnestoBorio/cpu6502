@@ -1,7 +1,7 @@
 package main
 
 import (
-  CPU "github.com/petruza/cpu6502/cpu6502"
+  CPU "go64/cpu6502"
   "fmt"
   "os"
   "io/ioutil"

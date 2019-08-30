@@ -19,7 +19,7 @@ type Cpu struct {
 		NoInterrupt bool
 	}
 
-	cycles byte // Cycle count of the last executed instruction [1..7]
+	cycles uint8 // Cycle count of the last executed instruction [1..7]
 
 	readMemory  [0x10000]MemoryReader
 	writeMemory [0x10000]MemoryWriter
@@ -72,19 +72,23 @@ func (cpu *Cpu) Reset() {
 }
 
 // Trigger an external IRQ interrupt
-func (cpu *Cpu) IRQ() {
+func (cpu *Cpu) IRQ() uint8{
 	if ! cpu.Status.NoInterrupt {
 		cpu.irq(false)
+		return cpu.cycles
 	}
+	return 0 // 0 CPU cycles executed
 }
 
 // Trigger an external NMI interrupt
-func (cpu *Cpu) NMI() {
-	cpu.cycles = 7
+func (cpu *Cpu) NMI() uint8{
 	cpu.push( byte( cpu.PC >>8)) // PC's high byte
 	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
 	cpu.push(cpu.packStatus())
 	// Marat Fayzullin and others clear the decimal mode here
 	cpu.Status.NoInterrupt = true // TODO: Marat Fayzullin doesn't do this
 	cpu.PC = cpu.getWord(0xFFFA) // Jump to NMI vector
+	
+	cpu.cycles = 7
+	return cpu.cycles
 }

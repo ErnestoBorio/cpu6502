@@ -1,6 +1,6 @@
 package cpu6502
 
-func (cpu *Cpu) Step() {
+func (cpu *Cpu) Step() uint8 {
 	opcode := cpu.readMemory[cpu.PC](cpu.PC)
 	cpu.PC++
 	cpu.cycles = opcodeCycles[opcode]
@@ -176,6 +176,7 @@ func (cpu *Cpu) Step() {
 			 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs
 		default: panic("Undocumented opcode")
 	}
+	return cpu.cycles
 }
 
 

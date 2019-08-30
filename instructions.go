@@ -289,7 +289,6 @@ func (cpu *Cpu) jsr() {
 	cpu.push( byte( returnAddress >>8)) // address' high byte
 	cpu.push( byte( returnAddress & lowByte)) // address' low byte
 	cpu.PC = cpu.getWord(cpu.PC) // Jump
-	// TODO: should it set cpu.cycles = 6 ?
 }
 
 // RTS
@@ -297,7 +296,6 @@ func (cpu *Cpu) rts() {
 	cpu.PC = word(cpu.pull())
 	cpu.PC |= word(cpu.pull()) <<8
 	cpu.PC++ // Fix JSR's off by -1 return address
-	// TODO: should it set cpu.cycles = 6 ?
 }
 
 // RTI
@@ -305,12 +303,10 @@ func (cpu *Cpu) rti() {
 	cpu.plp()
 	cpu.PC = word(cpu.pull())
 	cpu.PC |= word(cpu.pull()) <<8
-	// TODO: should it set cpu.cycles = 6 ?
 }
 
 // BRK (brk = true) and IRQ interrupt (brk = false)
 func (cpu *Cpu) irq(brk bool) {
-	cpu.cycles = 7
 	cpu.push( byte( cpu.PC >>8)) // PC's high byte
 	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
 	
@@ -324,4 +320,5 @@ func (cpu *Cpu) irq(brk bool) {
 	// Marat Fayzullin and others clear the decimal mode here
 	cpu.Status.NoInterrupt = true
 	cpu.PC = cpu.getWord(0xFFFE) // Jump to IRQ/BRK vector
+	cpu.cycles = 7
 }

@@ -21,8 +21,8 @@ type CPU struct {
 
 	cycles uint8 // Cycle count of the last executed instruction [1..7]
 
-	readMemory  [0x10000]MemoryReader
-	writeMemory [0x10000]MemoryWriter
+	readMemory  [0x10000]*MemoryReader
+	writeMemory [0x10000]*MemoryWriter
 }
 
 type MemoryReader = func(word) byte
@@ -46,8 +46,8 @@ func (cpu *CPU) Init() *CPU {
 }
 
 // Hooks a range of addresses to a host system memory reader function
-func (cpu *Cpu) HookMemoryReader(adrBegin uint16, adrEnd uint16, callback MemoryReader) {
-	for address := adrBegin;; address++ {
+func (cpu *CPU) HookMemoryReader(adrBegin uint16, adrEnd uint16, callback *MemoryReader) {
+	for address := adrBegin; address <= adrEnd; address++ {
 		cpu.readMemory[address] = callback
 		// without this, if adrEnd == 0xFFFF address wraps around to 0 and enters an infinite loop
 		if address == adrEnd {
@@ -57,9 +57,10 @@ func (cpu *Cpu) HookMemoryReader(adrBegin uint16, adrEnd uint16, callback Memory
 }
 
 // Hooks a range of addresses to a host system memory writer function
-func (cpu *Cpu) HookMemoryWriter(adrBegin uint16, adrEnd uint16, callback MemoryWriter) {
-	for address := adrBegin;; address++ {
+func (cpu *CPU) HookMemoryWriter(adrBegin uint16, adrEnd uint16, callback *MemoryWriter) {
+	for address := adrBegin; address <= adrEnd; address++ {
 		cpu.writeMemory[address] = callback
+		// without this, if adrEnd == 0xFFFF address wraps around to 0 and enters an infinite loop
 		if address == adrEnd {
 			break
 		}
@@ -72,7 +73,7 @@ func (cpu *CPU) Reset() {
 }
 
 // Trigger an external IRQ interrupt
-func (cpu *CPU) IRQ() uint8{
+func (cpu *CPU) IRQ() uint8 {
 	if ! cpu.Status.NoInterrupt {
 		cpu.irq(false)
 		return cpu.cycles
@@ -81,7 +82,7 @@ func (cpu *CPU) IRQ() uint8{
 }
 
 // Trigger an external NMI interrupt
-func (cpu *CPU) NMI() uint8{
+func (cpu *CPU) NMI() uint8 {
 	cpu.push( byte( cpu.PC >>8)) // PC's high byte
 	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
 	cpu.push(cpu.packStatus())

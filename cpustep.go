@@ -1,7 +1,7 @@
 package cpu6502
 
 func (cpu *CPU) Step() uint8 {
-	opcode := cpu.readMemory[cpu.PC](cpu.PC)
+	opcode := (*cpu.readMemory[cpu.PC])(cpu.PC)
 	cpu.PC++
 	cpu.cycles = opcodeCycles[opcode]
 	// TODO: byte following PC is read in advance. Test it

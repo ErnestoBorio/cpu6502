@@ -3,7 +3,7 @@ package cpu6502
 type word = uint16
 
 // Models the 6502 CPU
-type Cpu struct {
+type CPU struct {
 	PC    word // Program counter
 	Stack byte // Stack pointer
 	A     byte // A register
@@ -31,7 +31,7 @@ type MemoryWriter = func(word, byte)
 // Initialize the state of the cpu as stated in:
 // http://wiki.nesdev.com/w/index.php/CPU_power_up_state 
 // https://www.c64-wiki.com/wiki/Reset_(Process)
-func (cpu *Cpu) Init() *Cpu {
+func (cpu *CPU) Init() *CPU {
 	cpu.Stack = 0xFD // because of a fake push of PC and flags
 	cpu.A = 0
 	cpu.X = 0
@@ -67,12 +67,12 @@ func (cpu *Cpu) HookMemoryWriter(adrBegin uint16, adrEnd uint16, callback Memory
 }
 
 // Jump to the address where the reset vector points to
-func (cpu *Cpu) Reset() {
+func (cpu *CPU) Reset() {
 	cpu.PC = cpu.getWord(0xFFFC)
 }
 
 // Trigger an external IRQ interrupt
-func (cpu *Cpu) IRQ() uint8{
+func (cpu *CPU) IRQ() uint8{
 	if ! cpu.Status.NoInterrupt {
 		cpu.irq(false)
 		return cpu.cycles
@@ -81,7 +81,7 @@ func (cpu *Cpu) IRQ() uint8{
 }
 
 // Trigger an external NMI interrupt
-func (cpu *Cpu) NMI() uint8{
+func (cpu *CPU) NMI() uint8{
 	cpu.push( byte( cpu.PC >>8)) // PC's high byte
 	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
 	cpu.push(cpu.packStatus())

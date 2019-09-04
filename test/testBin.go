@@ -1,7 +1,7 @@
 package main
 
 import (
-  CPU "go64/cpu6502"
+  "go64/cpu6502"
   "fmt"
   "os"
   "io/ioutil"
@@ -15,7 +15,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	cpu := new(CPU.Cpu).Init()
+	cpu := new(cpu6502.CPU).Init()
 	cpu.HookMemoryReader(0, 0xFFFF, func(adr uint16) byte { return mem[adr] })
 	cpu.HookMemoryWriter(0, 0xFFFF, func(adr uint16, val byte) { mem[adr] = val })
 	

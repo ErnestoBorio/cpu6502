@@ -1,6 +1,6 @@
 package cpu6502
 
-func (cpu *Cpu) Step() uint8 {
+func (cpu *CPU) Step() uint8 {
 	opcode := cpu.readMemory[cpu.PC](cpu.PC)
 	cpu.PC++
 	cpu.cycles = opcodeCycles[opcode]

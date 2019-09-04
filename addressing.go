@@ -1,38 +1,38 @@
 package cpu6502
 
 // Returns the byte the PC points to
-func (cpu *Cpu) immediate() byte {
+func (cpu *CPU) immediate() byte {
 	value := cpu.readMemory[cpu.PC](cpu.PC)
 	cpu.PC++
 	return value
 }
 
 // Returns zero page address from PC's following byte
-func (cpu *Cpu) zeroPageAddress() word {
+func (cpu *CPU) zeroPageAddress() word {
 	address := word(cpu.readMemory[cpu.PC](cpu.PC))
 	cpu.PC++
 	return address
 }
 
 // TODO: altering the PC before calling ReadMemory can have bad side effects?
-func (cpu *Cpu) zeroPage() byte {
+func (cpu *CPU) zeroPage() byte {
 	address := cpu.zeroPageAddress()
 	return cpu.readMemory[address](address)
 }
 
-func (cpu *Cpu) zeroPageIndexedAddress(index byte) word {
+func (cpu *CPU) zeroPageIndexedAddress(index byte) word {
 	address := word(cpu.readMemory[cpu.PC](cpu.PC) + index)
 	cpu.PC++
 	return address
 }
 
-func (cpu *Cpu) zeroPageIndexed(index byte) byte {
+func (cpu *CPU) zeroPageIndexed(index byte) byte {
 	address := cpu.zeroPageIndexedAddress(index)
 	return cpu.readMemory[address](address)
 }
 
 // Returns absolute address from PC's following 2 bytes
-func (cpu *Cpu) absoluteAddress() word {
+func (cpu *CPU) absoluteAddress() word {
 	var address word = word( cpu.readMemory[cpu.PC](cpu.PC))
 	cpu.PC++
 	address |= ( word( cpu.readMemory[cpu.PC](cpu.PC)) << 8 )
@@ -40,12 +40,12 @@ func (cpu *Cpu) absoluteAddress() word {
 	return address
 }
 
-func (cpu *Cpu) absolute() byte {
+func (cpu *CPU) absolute() byte {
 	address := cpu.absoluteAddress()
 	return cpu.readMemory[address](address)
 }
 
-func (cpu *Cpu) absoluteIndexedAddress(index byte) word {
+func (cpu *CPU) absoluteIndexedAddress(index byte) word {
 	address := word(cpu.readMemory[cpu.PC](cpu.PC)) + word(index)
 	if address > 0xFF { // if crossed page boundary
 		cpu.cycles++
@@ -56,12 +56,12 @@ func (cpu *Cpu) absoluteIndexedAddress(index byte) word {
 	return address
 }
 
-func (cpu *Cpu) absoluteIndexed(index byte) byte {
+func (cpu *CPU) absoluteIndexed(index byte) byte {
 	address := cpu.absoluteIndexedAddress(index)
 	return cpu.readMemory[address](address)
 }
 
-func (cpu *Cpu) indexedIndirectXaddress() word {
+func (cpu *CPU) indexedIndirectXaddress() word {
 	pointer := cpu.readMemory[cpu.PC](cpu.PC) + cpu.X
 	cpu.PC++
 	var address word = word( cpu.readMemory[pointer]( word(pointer)))
@@ -70,12 +70,12 @@ func (cpu *Cpu) indexedIndirectXaddress() word {
 	return address
 }
 
-func (cpu *Cpu) indexedIndirectX() byte {
+func (cpu *CPU) indexedIndirectX() byte {
 	address := cpu.indexedIndirectXaddress()
 	return cpu.readMemory[address](address)
 }
 
-func (cpu *Cpu) indirectIndexedYaddress() word {
+func (cpu *CPU) indirectIndexedYaddress() word {
 	base := cpu.readMemory[cpu.PC](cpu.PC)
 	cpu.PC++
 	address := word(cpu.readMemory[base](word(base))) + word(cpu.Y)
@@ -86,7 +86,7 @@ func (cpu *Cpu) indirectIndexedYaddress() word {
 	return address + (word(cpu.readMemory[base](word(base))) <<8)
 }
 
-func (cpu *Cpu) indirectIndexedY() byte {
+func (cpu *CPU) indirectIndexedY() byte {
 	address := cpu.indirectIndexedYaddress()
 	return cpu.readMemory[address](address)
 }

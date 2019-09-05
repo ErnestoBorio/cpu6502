@@ -16,10 +16,8 @@ func main() {
 		panic(err)
 	}
 	cpu := new(cpu6502.CPU).Init()
-	reader := func(adr uint16) byte { return mem[adr] }
-	writer := func(adr uint16, val byte) { mem[adr] = val }
-	cpu.HookMemoryReader(0, 0xFFFF, &reader)
-	cpu.HookMemoryWriter(0, 0xFFFF, &writer)
+	cpu.HookMemoryReader(0, 0xFFFF, func(adr uint16) byte { return mem[adr] })
+	cpu.HookMemoryWriter(0, 0xFFFF, func(adr uint16, val byte) { mem[adr] = val })
 	
 	cpu.PC = Tests_Start
 	stop: for ;; {

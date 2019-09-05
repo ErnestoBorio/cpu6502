@@ -20,7 +20,7 @@ func (cpu *CPU) loadReg(register *byte, value byte) {
 
 // STA STX STY
 func (cpu *CPU) storeReg(value byte, address word) {
-	(*cpu.writeMemory[address])(address, value)
+	cpu.writeMemory[address](address, value)
 }
 
 // INX DEX INY DEY
@@ -31,8 +31,8 @@ func (cpu *CPU) incDecReg(register *byte, delta int) {
 
 // INC DEC
 func (cpu *CPU) incDec(address word, delta int) {
-	value := (*cpu.readMemory[address])(address) + byte(delta)
-	(*cpu.writeMemory[address])(address, value)
+	value := cpu.readMemory[address](address) + byte(delta)
+	cpu.writeMemory[address](address, value)
 	cpu.calculateZeroNegative(value)
 }
 
@@ -82,11 +82,11 @@ func (cpu *CPU) asla() {
 
 // ASL
 func (cpu *CPU) asl(address word) {
-	value := (*cpu.readMemory[address])(address)
+	value := cpu.readMemory[address](address)
 	cpu.Status.Carry = (value & leftmostBit) == leftmostBit
 	value = value <<1
 	cpu.calculateZeroNegative(value)
-	(*cpu.writeMemory[address])(address, value)
+	cpu.writeMemory[address](address, value)
 }
 
 // LSR A
@@ -98,11 +98,11 @@ func (cpu *CPU) lsra() {
 
 // LSR
 func (cpu *CPU) lsr(address word) {
-	value := (*cpu.readMemory[address])(address)
+	value := cpu.readMemory[address](address)
 	cpu.Status.Carry = (value & rightmostBit) == rightmostBit
 	value = value >>1
 	cpu.calculateZeroNegative(value)
-	(*cpu.writeMemory[address])(address, value)
+	cpu.writeMemory[address](address, value)
 }
 
 // ROL A
@@ -118,7 +118,7 @@ func (cpu *CPU) rola() {
 
 // ROL
 func (cpu *CPU) rol(address word) {
-	value := (*cpu.readMemory[address])(address)
+	value := cpu.readMemory[address](address)
 	oldCarry := byte(0)
 	if cpu.Status.Carry {
 		oldCarry = 1
@@ -126,7 +126,7 @@ func (cpu *CPU) rol(address word) {
 	cpu.Status.Carry = (value & leftmostBit) > 0
 	value = ( value <<1 ) | oldCarry
 	cpu.calculateZeroNegative(value)
-	(*cpu.writeMemory[address])(address, value)
+	cpu.writeMemory[address](address, value)
 }
 
 // ROR A
@@ -139,7 +139,7 @@ func (cpu *CPU) rora() {
 
 // ROR
 func (cpu *CPU) ror(address word) {
-	value := (*cpu.readMemory[address])(address)
+	value := cpu.readMemory[address](address)
 	oldCarry := byte(0)
 	if cpu.Status.Carry {
 		oldCarry = 1
@@ -147,7 +147,7 @@ func (cpu *CPU) ror(address word) {
 	cpu.Status.Carry = (value & rightmostBit) > 0
 	value = (value >>1) | (oldCarry <<7)
 	cpu.calculateZeroNegative(value)
-	(*cpu.writeMemory[address])(address, value)
+	cpu.writeMemory[address](address, value)
 }
 
 // TAX TXA TAY TYA TSX
@@ -200,14 +200,14 @@ func (cpu *CPU) branch(flag bool, condition bool, jump byte) {
 
 func (cpu *CPU) push(value byte) {
 	stack := 0x100 + word(cpu.Stack)
-	(*cpu.writeMemory[stack])(stack, value)
+	cpu.writeMemory[stack](stack, value)
 	cpu.Stack--
 }
 
 func (cpu *CPU) pull() byte {
 	cpu.Stack++
 	stack := 0x100 + word(cpu.Stack)
-	return (*cpu.readMemory[stack])(stack)
+	return cpu.readMemory[stack](stack)
 }
 
 // PLA
@@ -260,8 +260,8 @@ func (cpu *CPU) plp() {
 }
 
 func (cpu *CPU) getWord(address word) word {
-	value := word( (*cpu.readMemory[address])(address))
-	value |= word( (*cpu.readMemory[address+1])(address+1)) <<8
+	value := word( cpu.readMemory[address](address))
+	value |= word( cpu.readMemory[address+1](address+1)) <<8
 	return value
 }
 
@@ -273,12 +273,12 @@ func (cpu *CPU) jumpAbsolute() {
 // JMP
 func (cpu *CPU) jumpIndirect() {
 	pointer := cpu.getWord(cpu.PC)
-	cpu.PC = word((*cpu.readMemory[pointer])(pointer)) // low byte
+	cpu.PC = word(cpu.readMemory[pointer](pointer)) // low byte
 	if (pointer & lowByte) == 0xFF { // address wraps around page
 		pointer -= 0x100
 	}
 	pointer++
-	cpu.PC |= word((*cpu.readMemory[pointer])(pointer)) <<8 // high byte
+	cpu.PC |= word(cpu.readMemory[pointer](pointer)) <<8 // high byte
 }
 
 // JSR

@@ -1,38 +1,27 @@
 package cpu6502
 
-// Returns the byte the PC points to
-func (cpu *CPU) immediate() byte {
-	value := cpu.ReadMemory(cpu.PC)
+// Returns the address following the opcode (PC+1)
+func (cpu *CPU) immediate() word {
+	address := cpu.PC
 	cpu.PC++
-	return value
+	return address
 }
 
 // Returns zero page address from PC's following byte
-func (cpu *CPU) zeroPageAddress() word {
+func (cpu *CPU) zeroPage() word {
 	address := word(cpu.ReadMemory(cpu.PC))
 	cpu.PC++
 	return address
 }
 
-// TODO: altering the PC before calling ReadMemory can have bad side effects?
-func (cpu *CPU) zeroPage() byte {
-	address := cpu.zeroPageAddress()
-	return cpu.ReadMemory(address)
-}
-
-func (cpu *CPU) zeroPageIndexedAddress(index byte) word {
+func (cpu *CPU) zeroPageIndexed(index byte) word {
 	address := word(cpu.ReadMemory(cpu.PC) + index)
 	cpu.PC++
 	return address
 }
 
-func (cpu *CPU) zeroPageIndexed(index byte) byte {
-	address := cpu.zeroPageIndexedAddress(index)
-	return cpu.ReadMemory(address)
-}
-
 // Returns absolute address from PC's following 2 bytes
-func (cpu *CPU) absoluteAddress() word {
+func (cpu *CPU) absolute() word {
 	var address word = word( cpu.ReadMemory(cpu.PC))
 	cpu.PC++
 	address |= ( word( cpu.ReadMemory(cpu.PC)) << 8 )
@@ -40,12 +29,7 @@ func (cpu *CPU) absoluteAddress() word {
 	return address
 }
 
-func (cpu *CPU) absolute() byte {
-	address := cpu.absoluteAddress()
-	return cpu.ReadMemory(address)
-}
-
-func (cpu *CPU) absoluteIndexedAddress(index byte) word {
+func (cpu *CPU) absoluteIndexed(index byte) word {
 	address := word(cpu.ReadMemory(cpu.PC)) + word(index)
 	if address > 0xFF { // if crossed page boundary
 		cpu.cycles++
@@ -56,12 +40,7 @@ func (cpu *CPU) absoluteIndexedAddress(index byte) word {
 	return address
 }
 
-func (cpu *CPU) absoluteIndexed(index byte) byte {
-	address := cpu.absoluteIndexedAddress(index)
-	return cpu.ReadMemory(address)
-}
-
-func (cpu *CPU) indexedIndirectXaddress() word {
+func (cpu *CPU) indexedIndirectX() word {
 	pointer := cpu.ReadMemory(cpu.PC) + cpu.X
 	cpu.PC++
 	var address word = word( cpu.ReadMemory( word(pointer)))
@@ -70,12 +49,7 @@ func (cpu *CPU) indexedIndirectXaddress() word {
 	return address
 }
 
-func (cpu *CPU) indexedIndirectX() byte {
-	address := cpu.indexedIndirectXaddress()
-	return cpu.ReadMemory(address)
-}
-
-func (cpu *CPU) indirectIndexedYaddress() word {
+func (cpu *CPU) indirectIndexedY() word {
 	base := cpu.ReadMemory(cpu.PC)
 	cpu.PC++
 	address := word(cpu.ReadMemory(word(base))) + word(cpu.Y)
@@ -84,9 +58,4 @@ func (cpu *CPU) indirectIndexedYaddress() word {
 	}
 	base++
 	return address + (word(cpu.ReadMemory(word(base))) <<8)
-}
-
-func (cpu *CPU) indirectIndexedY() byte {
-	address := cpu.indirectIndexedYaddress()
-	return cpu.ReadMemory(address)
 }

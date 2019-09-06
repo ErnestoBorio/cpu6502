@@ -13,9 +13,9 @@ func (cpu *CPU) calculateZeroNegative(value byte) {
 }
 
 // LDA LDX LDY
-func (cpu *CPU) loadReg(register *byte, value byte) {
-	*register = value
-	cpu.calculateZeroNegative(value)
+func (cpu *CPU) loadReg(register *byte, address word) {
+	*register = cpu.ReadMemory(address)
+	cpu.calculateZeroNegative(*register)
 }
 
 // STA STX STY
@@ -37,7 +37,8 @@ func (cpu *CPU) incDec(address word, delta int) {
 }
 
 // ADC
-func (cpu *CPU) adc(value byte) {
+func (cpu *CPU) adc(address word) {
+	value := cpu.ReadMemory(address)
 	var sum byte
 	if cpu.Status.Carry {
 		sum = cpu.A + value + 1
@@ -51,8 +52,8 @@ func (cpu *CPU) adc(value byte) {
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-//SBC TODO TEST!
-func (cpu *CPU) sbc(value byte) {
+func (cpu *CPU) sbc(address word) {
+	value := cpu.ReadMemory(address)
 	var diff byte
 	if cpu.Status.Carry {
 		diff = cpu.A - value
@@ -67,7 +68,8 @@ func (cpu *CPU) sbc(value byte) {
 }
 
 // CMP CPX CPY
-func (cpu *CPU) compare(register, value byte) {
+func (cpu *CPU) compare(register byte, address word) {
+	value := cpu.ReadMemory(address)
 	cpu.Status.Zero  = register == value
 	cpu.Status.Carry = register >= value
 	cpu.Status.Negative = ((register - value) & signBit) != 0
@@ -157,32 +159,35 @@ func (cpu *CPU) transferRegister(from byte, to *byte) {
 }
 
 // AND
-func (cpu *CPU) and(value byte) {
-	cpu.A &= value
+func (cpu *CPU) and(address word) {
+	cpu.A &= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
 // EOR
-func (cpu *CPU) eor(value byte) {
-	cpu.A ^= value
+func (cpu *CPU) eor(address word) {
+	cpu.A ^= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
 // ORA
-func (cpu *CPU) ora(value byte) {
-	cpu.A |= value
+func (cpu *CPU) ora(address word) {
+	cpu.A |= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
 // BIT
-func (cpu *CPU) bit(value byte) {
+func (cpu *CPU) bit(address word) {
+	value := cpu.ReadMemory(address)
 	cpu.Status.Zero =     value & cpu.A == 0
 	cpu.Status.Overflow = value & bit6 != 0
 	cpu.Status.Negative = value & signBit != 0
 }
 
 // BEQ BNE BPL BMI BVS BVC BCS BCC
-func (cpu *CPU) branch(flag bool, condition bool, jump byte) {
+func (cpu *CPU) branch(flag bool, condition bool) {
+	jump := cpu.ReadMemory(cpu.PC)
+	cpu.PC++
 	if flag == condition {
 		cpu.cycles++
 		oldPage := cpu.PC & highByte

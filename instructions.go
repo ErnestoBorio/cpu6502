@@ -5,7 +5,7 @@ const leftmostBit  = 1<<7
 const bit6         = 1<<6
 const signBit      = leftmostBit
 const highByte     = 0xFF00
-const lowByte      = 0xFF
+const lowByte      = 0x00FF
 
 func (cpu *CPU) calculateZeroNegative(value byte) {
 	cpu.Status.Zero = value == 0

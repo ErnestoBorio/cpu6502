@@ -40,7 +40,7 @@ func (cpu *CPU) Init() *CPU {
 	cpu.Status.Overflow = false
 	cpu.Status.Negative = false
 	cpu.Status.NoInterrupt = true
-	return cpu
+	return cpu // to do CPU.Init().Reset()
 }
 
 // Jump to the address where the reset vector points to

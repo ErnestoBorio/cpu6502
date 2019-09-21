@@ -13,13 +13,13 @@ func (cpu *CPU) calculateZeroNegative(value byte) {
 }
 
 // LDA LDX LDY
-func (cpu *CPU) loadReg(register *byte, address word) {
+func (cpu *CPU) loadReg(register *byte, address uint16) {
 	*register = cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(*register)
 }
 
 // STA STX STY
-func (cpu *CPU) storeReg(value byte, address word) {
+func (cpu *CPU) storeReg(value byte, address uint16) {
 	cpu.WriteMemory(address, value)
 }
 
@@ -30,14 +30,14 @@ func (cpu *CPU) incDecReg(register *byte, delta int) {
 }
 
 // INC DEC
-func (cpu *CPU) incDec(address word, delta int) {
+func (cpu *CPU) incDec(address uint16, delta int) {
 	value := cpu.ReadMemory(address) + byte(delta)
 	cpu.WriteMemory(address, value)
 	cpu.calculateZeroNegative(value)
 }
 
 // ADC
-func (cpu *CPU) adc(address word) {
+func (cpu *CPU) adc(address uint16) {
 	value := cpu.ReadMemory(address)
 	var sum byte
 	if cpu.Status.Carry {
@@ -52,7 +52,7 @@ func (cpu *CPU) adc(address word) {
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-func (cpu *CPU) sbc(address word) {
+func (cpu *CPU) sbc(address uint16) {
 	value := cpu.ReadMemory(address)
 	var diff byte
 	if cpu.Status.Carry {
@@ -68,7 +68,7 @@ func (cpu *CPU) sbc(address word) {
 }
 
 // CMP CPX CPY
-func (cpu *CPU) compare(register byte, address word) {
+func (cpu *CPU) compare(register byte, address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Zero  = register == value
 	cpu.Status.Carry = register >= value
@@ -83,7 +83,7 @@ func (cpu *CPU) asla() {
 }
 
 // ASL
-func (cpu *CPU) asl(address word) {
+func (cpu *CPU) asl(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Carry = (value & leftmostBit) == leftmostBit
 	value = value <<1
@@ -99,7 +99,7 @@ func (cpu *CPU) lsra() {
 }
 
 // LSR
-func (cpu *CPU) lsr(address word) {
+func (cpu *CPU) lsr(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Carry = (value & rightmostBit) == rightmostBit
 	value = value >>1
@@ -119,7 +119,7 @@ func (cpu *CPU) rola() {
 }
 
 // ROL
-func (cpu *CPU) rol(address word) {
+func (cpu *CPU) rol(address uint16) {
 	value := cpu.ReadMemory(address)
 	oldCarry := byte(0)
 	if cpu.Status.Carry {
@@ -140,7 +140,7 @@ func (cpu *CPU) rora() {
 }
 
 // ROR
-func (cpu *CPU) ror(address word) {
+func (cpu *CPU) ror(address uint16) {
 	value := cpu.ReadMemory(address)
 	oldCarry := byte(0)
 	if cpu.Status.Carry {
@@ -159,25 +159,25 @@ func (cpu *CPU) transferRegister(from byte, to *byte) {
 }
 
 // AND
-func (cpu *CPU) and(address word) {
+func (cpu *CPU) and(address uint16) {
 	cpu.A &= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
 // EOR
-func (cpu *CPU) eor(address word) {
+func (cpu *CPU) eor(address uint16) {
 	cpu.A ^= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
 // ORA
-func (cpu *CPU) ora(address word) {
+func (cpu *CPU) ora(address uint16) {
 	cpu.A |= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
 // BIT
-func (cpu *CPU) bit(address word) {
+func (cpu *CPU) bit(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Zero =     value & cpu.A == 0
 	cpu.Status.Overflow = value & bit6 != 0
@@ -192,9 +192,9 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 		cpu.cycles++
 		oldPage := cpu.PC & highByte
 		if jump & signBit > 0 { // relative jump is negative
-			cpu.PC += word(jump) - 0x100 // subtract jump's 2's complement
+			cpu.PC += uint16(jump) - 0x100 // subtract jump's 2's complement
 		} else {
-			cpu.PC += word(jump)
+			cpu.PC += uint16(jump)
 		}
 		// Branching crosses page boundary?
 		if oldPage != cpu.PC & highByte {
@@ -204,14 +204,14 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 }
 
 func (cpu *CPU) push(value byte) {
-	stack := 0x100 + word(cpu.Stack)
+	stack := 0x100 + uint16(cpu.Stack)
 	cpu.WriteMemory(stack, value)
 	cpu.Stack--
 }
 
 func (cpu *CPU) pull() byte {
 	cpu.Stack++
-	stack := 0x100 + word(cpu.Stack)
+	stack := 0x100 + uint16(cpu.Stack)
 	return cpu.ReadMemory(stack)
 }
 
@@ -264,26 +264,26 @@ func (cpu *CPU) plp() {
 	cpu.Status.Negative    = flags & (1<<7) != 0
 }
 
-func (cpu *CPU) getWord(address word) word {
-	value := word( cpu.ReadMemory(address))
-	value |= word( cpu.ReadMemory(address+1)) <<8
+func (cpu *CPU) getUint16(address uint16) uint16 {
+	value := uint16( cpu.ReadMemory(address))
+	value |= uint16( cpu.ReadMemory(address+1)) <<8
 	return value
 }
 
 // JMP
 func (cpu *CPU) jumpAbsolute() {
-	cpu.PC = cpu.getWord(cpu.PC)
+	cpu.PC = cpu.getUint16(cpu.PC)
 }
 
 // JMP
 func (cpu *CPU) jumpIndirect() {
-	pointer := cpu.getWord(cpu.PC)
-	cpu.PC = word(cpu.ReadMemory(pointer)) // low byte
+	pointer := cpu.getUint16(cpu.PC)
+	cpu.PC = uint16(cpu.ReadMemory(pointer)) // low byte
 	if (pointer & lowByte) == 0xFF { // address wraps around page
 		pointer -= 0x100
 	}
 	pointer++
-	cpu.PC |= word(cpu.ReadMemory(pointer)) <<8 // high byte
+	cpu.PC |= uint16(cpu.ReadMemory(pointer)) <<8 // high byte
 }
 
 // JSR
@@ -293,21 +293,21 @@ func (cpu *CPU) jsr() {
 	returnAddress := cpu.PC + 1
 	cpu.push( byte( returnAddress >>8)) // address' high byte
 	cpu.push( byte( returnAddress & lowByte)) // address' low byte
-	cpu.PC = cpu.getWord(cpu.PC) // Jump
+	cpu.PC = cpu.getUint16(cpu.PC) // Jump
 }
 
 // RTS
 func (cpu *CPU) rts() {
-	cpu.PC = word(cpu.pull())
-	cpu.PC |= word(cpu.pull()) <<8
+	cpu.PC = uint16(cpu.pull())
+	cpu.PC |= uint16(cpu.pull()) <<8
 	cpu.PC++ // Fix JSR's off by -1 return address
 }
 
 // RTI
 func (cpu *CPU) rti() {
 	cpu.plp()
-	cpu.PC = word(cpu.pull())
-	cpu.PC |= word(cpu.pull()) <<8
+	cpu.PC = uint16(cpu.pull())
+	cpu.PC |= uint16(cpu.pull()) <<8
 }
 
 // BRK (brk = true) and IRQ interrupt (brk = false)
@@ -324,6 +324,6 @@ func (cpu *CPU) irq(brk bool) {
 	// "NMOS 6502 do not clear the decimal mode flag when an interrupt occurs"
 	// Marat Fayzullin and others clear the decimal mode here
 	cpu.Status.NoInterrupt = true
-	cpu.PC = cpu.getWord(0xFFFE) // Jump to IRQ/BRK vector
+	cpu.PC = cpu.getUint16(0xFFFE) // Jump to IRQ/BRK vector
 	cpu.cycles = 7
 }

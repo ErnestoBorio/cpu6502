@@ -1,10 +1,8 @@
 package cpu6502
 
-type word = uint16
-
 // Models the 6502 CPU
 type CPU struct {
-	PC    word // Program counter
+	PC    uint16 // Program counter
 	Stack byte // Stack pointer
 	A     byte // A register
 	X     byte // X register
@@ -22,8 +20,8 @@ type CPU struct {
 	cycles uint8 // Cycle count of the last executed instruction [1..7]
 
 	// References to functions on the host system to access memory
-	ReadMemory  func(word) byte
-	WriteMemory func(word, byte)
+	ReadMemory  func(uint16) byte
+	WriteMemory func(uint16, byte)
 }
 
 // Initialize the state of the cpu as stated in:
@@ -45,7 +43,7 @@ func (cpu *CPU) Init() *CPU {
 
 // Jump to the address where the reset vector points to
 func (cpu *CPU) Reset() {
-	cpu.PC = cpu.getWord(0xFFFC)
+	cpu.PC = cpu.getUint16(0xFFFC)
 }
 
 // Trigger an external IRQ interrupt
@@ -64,7 +62,7 @@ func (cpu *CPU) NMI() uint8{
 	cpu.push(cpu.packStatus())
 	// Marat Fayzullin and others clear the decimal mode here
 	cpu.Status.NoInterrupt = true // TODO: Marat Fayzullin doesn't do this
-	cpu.PC = cpu.getWord(0xFFFA) // Jump to NMI vector
+	cpu.PC = cpu.getUint16(0xFFFA) // Jump to NMI vector
 	
 	cpu.cycles = 7
 	return cpu.cycles

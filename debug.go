@@ -24,6 +24,7 @@ func (cpu *CPU) debugAbsoluteY() uint16 {
 
 func (cpu *CPU) debugIndirect() uint16 {
 	pointer := cpu.getUint16(cpu.PC)
+	cpu.PC += 2
 	address := uint16(cpu.ReadMemory(pointer)) // low byte
 	if (pointer & lowByte) == 0xFF { // address wraps around page
 		pointer -= 0x100

@@ -141,14 +141,14 @@ func (cpu *CPU) Step() uint8 {
 		case EOR_IndirIndexY_51: cpu.eor(cpu.indirectIndexedY())
 		case ORA_IndirIndexY_11: cpu.ora(cpu.indirectIndexedY())
 		// Branches
-		case BEQ_Relative_F0: cpu.branch(cpu.Status.Zero, true)
-		case BNE_Relative_D0: cpu.branch(cpu.Status.Zero, false)
-		case BMI_Relative_30: cpu.branch(cpu.Status.Negative, true)
 		case BPL_Relative_10: cpu.branch(cpu.Status.Negative, false)
-		case BCS_Relative_B0: cpu.branch(cpu.Status.Carry, true)
-		case BCC_Relative_90: cpu.branch(cpu.Status.Carry, false)
-		case BVS_Relative_70: cpu.branch(cpu.Status.Overflow, true)
+		case BMI_Relative_30: cpu.branch(cpu.Status.Negative, true)
 		case BVC_Relative_50: cpu.branch(cpu.Status.Overflow, false)
+		case BVS_Relative_70: cpu.branch(cpu.Status.Overflow, true)
+		case BCC_Relative_90: cpu.branch(cpu.Status.Carry, false)
+		case BCS_Relative_B0: cpu.branch(cpu.Status.Carry, true)
+		case BNE_Relative_D0: cpu.branch(cpu.Status.Zero, false)
+		case BEQ_Relative_F0: cpu.branch(cpu.Status.Zero, true)
 		// Status flags
 		case CLC_18: cpu.Status.Carry       = false
 		case SEC_38: cpu.Status.Carry       = true

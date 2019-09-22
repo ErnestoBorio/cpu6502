@@ -22,10 +22,8 @@ func (cpu *CPU) zeroPageIndexed(index byte) uint16 {
 
 // Returns absolute address from PC's following 2 bytes
 func (cpu *CPU) absolute() uint16 {
-	var address uint16 = uint16( cpu.ReadMemory(cpu.PC))
-	cpu.PC++
-	address |= ( uint16( cpu.ReadMemory(cpu.PC)) << 8 )
-	cpu.PC++
+	address := cpu.getUint16(cpu.PC)
+	cpu.PC += 2
 	return address
 }
 

@@ -264,12 +264,6 @@ func (cpu *CPU) plp() {
 	cpu.Status.Negative    = flags & (1<<7) != 0
 }
 
-func (cpu *CPU) getUint16(address uint16) uint16 {
-	value := uint16( cpu.ReadMemory(address))
-	value |= uint16( cpu.ReadMemory(address+1)) <<8
-	return value
-}
-
 // JMP
 func (cpu *CPU) jumpAbsolute() {
 	cpu.PC = cpu.getUint16(cpu.PC)

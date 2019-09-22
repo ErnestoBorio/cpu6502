@@ -67,3 +67,10 @@ func (cpu *CPU) NMI() uint8{
 	cpu.cycles = 7
 	return cpu.cycles
 }
+
+// Get a little endian 16 bits value from 2 consecutive memory addresses
+func (cpu *CPU) getUint16(address uint16) uint16 {
+	value := uint16( cpu.ReadMemory(address))
+	value |= uint16( cpu.ReadMemory(address+1)) <<8
+	return value
+}

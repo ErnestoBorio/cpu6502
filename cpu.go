@@ -27,7 +27,7 @@ type CPU struct {
 // Initialize the state of the cpu as stated in:
 // http://wiki.nesdev.com/w/index.php/CPU_power_up_state 
 // https://www.c64-wiki.com/wiki/Reset_(Process)
-func (cpu *CPU) Init() *CPU {
+func (cpu *CPU) Init() {
 	cpu.Stack = 0xFD // because of a fake push of PC and flags
 	cpu.A = 0
 	cpu.X = 0
@@ -38,7 +38,6 @@ func (cpu *CPU) Init() *CPU {
 	cpu.Status.Overflow = false
 	cpu.Status.Negative = false
 	cpu.Status.NoInterrupt = true
-	return cpu // to do CPU.Init().Reset()
 }
 
 // Jump to the address where the reset vector points to

@@ -22,6 +22,9 @@ type CPU struct {
 	// References to functions on the host system to access memory
 	ReadMemory  func(uint16) byte
 	WriteMemory func(uint16, byte)
+
+	// Temporary WIP TODO
+	DbgReadMemory func(uint16) byte
 }
 
 // Initialize the state of the cpu as stated in:
@@ -38,6 +41,7 @@ func (cpu *CPU) Init() {
 	cpu.Status.Overflow = false
 	cpu.Status.Negative = false
 	cpu.Status.NoInterrupt = true
+	cpu.DbgReadMemory = cpu.ReadMemory // Temporary WIP TODO
 }
 
 // Jump to the address where the reset vector points to

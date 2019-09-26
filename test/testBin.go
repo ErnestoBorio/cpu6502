@@ -15,9 +15,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	cpu := new(cpu6502.CPU).Init()
+	cpu := cpu6502.CPU{}
 	cpu.ReadMemory = func(adr uint16) byte { return mem[adr] }
 	cpu.WriteMemory = func(adr uint16, val byte) { mem[adr] = val }
+	cpu.Init()
 	
 	cpu.PC = Tests_Start
 	stop: for ;; {

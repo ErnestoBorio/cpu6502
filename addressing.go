@@ -41,9 +41,9 @@ func (cpu *CPU) absoluteIndexed(index byte) uint16 {
 func (cpu *CPU) indexedIndirectX() uint16 {
 	pointer := cpu.ReadMemory(cpu.PC) + cpu.X
 	cpu.PC++
-	var address uint16 = uint16( cpu.ReadMemory( uint16(pointer)))
+	var address uint16 = uint16(cpu.ReadMemory(uint16(pointer)))
 	pointer++
-	address |= (uint16( cpu.ReadMemory(uint16(pointer))) << 8)
+	address |= (uint16(cpu.ReadMemory(uint16(pointer))) << 8)
 	return address
 }
 
@@ -55,5 +55,5 @@ func (cpu *CPU) indirectIndexedY() uint16 {
 		cpu.cycles++
 	}
 	base++
-	return address + (uint16(cpu.ReadMemory(uint16(base))) <<8)
+	return address + (uint16(cpu.ReadMemory(uint16(base))) << 8)
 }

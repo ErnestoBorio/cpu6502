@@ -3,17 +3,17 @@ package cpu6502
 // Models the 6502 CPU
 type CPU struct {
 	PC    uint16 // Program counter
-	Stack byte // Stack pointer
-	A     byte // A register
-	X     byte // X register
-	Y     byte // Y register
+	Stack byte   // Stack pointer
+	A     byte   // A register
+	X     byte   // X register
+	Y     byte   // Y register
 
 	Status struct {
-		Zero     bool
-		Carry    bool
-		Decimal  bool
-		Overflow bool
-		Negative bool
+		Zero        bool
+		Carry       bool
+		Decimal     bool
+		Overflow    bool
+		Negative    bool
 		NoInterrupt bool
 	}
 
@@ -28,7 +28,7 @@ type CPU struct {
 }
 
 // Initialize the state of the cpu as stated in:
-// http://wiki.nesdev.com/w/index.php/CPU_power_up_state 
+// http://wiki.nesdev.com/w/index.php/CPU_power_up_state
 // https://www.c64-wiki.com/wiki/Reset_(Process)
 func (cpu *CPU) Init() {
 	cpu.Stack = 0xFD // because of a fake push of PC and flags
@@ -50,8 +50,8 @@ func (cpu *CPU) Reset() {
 }
 
 // Trigger an external IRQ interrupt
-func (cpu *CPU) IRQ() uint8{
 	if ! cpu.Status.NoInterrupt {
+func (cpu *CPU) IRQ() uint8 {
 		cpu.irq(false)
 		return cpu.cycles
 	}
@@ -59,21 +59,21 @@ func (cpu *CPU) IRQ() uint8{
 }
 
 // Trigger an external NMI interrupt
-func (cpu *CPU) NMI() uint8{
-	cpu.push( byte( cpu.PC >>8)) // PC's high byte
-	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
+func (cpu *CPU) NMI() uint8 {
+	cpu.push(byte(cpu.PC >> 8))      // PC's high byte
+	cpu.push(byte(cpu.PC & lowByte)) // PC's low byte
 	cpu.push(cpu.packStatus())
 	// Marat Fayzullin and others clear the decimal mode here
 	cpu.Status.NoInterrupt = true // TODO: Marat Fayzullin doesn't do this
 	cpu.PC = cpu.getUint16(0xFFFA) // Jump to NMI vector
-	
+
 	cpu.cycles = 7
 	return cpu.cycles
 }
 
 // Get a little endian 16 bits value from 2 consecutive memory addresses
 func (cpu *CPU) getUint16(address uint16) uint16 {
-	value := uint16( cpu.ReadMemory(address))
-	value |= uint16( cpu.ReadMemory(address+1)) <<8
+	value := uint16(cpu.ReadMemory(address))
+	value |= uint16(cpu.ReadMemory(address+1)) << 8
 	return value
 }

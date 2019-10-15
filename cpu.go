@@ -30,8 +30,8 @@ type CPU struct {
 // Initialize the state of the cpu as stated in:
 // http://wiki.nesdev.com/w/index.php/CPU_power_up_state
 // https://www.c64-wiki.com/wiki/Reset_(Process)
-func (cpu *CPU) Init() {
-	cpu.Stack = 0xFD // because of a fake push of PC and flags
+func (cpu *CPU) Init(read func(uint16) byte, write func(uint16, byte)) {
+	cpu.Stack = 0xFD // because of a fake push of PC and flags on reset interrupt
 	cpu.A = 0
 	cpu.X = 0
 	cpu.Y = 0
@@ -41,7 +41,9 @@ func (cpu *CPU) Init() {
 	cpu.Status.Overflow = false
 	cpu.Status.Negative = false
 	cpu.Status.NoInterrupt = true
-	cpu.DbgReadMemory = cpu.ReadMemory // Temporary WIP TODO
+	cpu.ReadMemory = read
+	cpu.WriteMemory = write
+	cpu.DbgReadMemory = read // Temporary WIP TODO
 }
 
 // Jump to the address where the reset vector points to
@@ -50,8 +52,8 @@ func (cpu *CPU) Reset() {
 }
 
 // Trigger an external IRQ interrupt
-	if ! cpu.Status.NoInterrupt {
 func (cpu *CPU) IRQ() uint8 {
+	if !cpu.Status.NoInterrupt {
 		cpu.irq(false)
 		return cpu.cycles
 	}
@@ -63,10 +65,9 @@ func (cpu *CPU) NMI() uint8 {
 	cpu.push(byte(cpu.PC >> 8))      // PC's high byte
 	cpu.push(byte(cpu.PC & lowByte)) // PC's low byte
 	cpu.push(cpu.packStatus())
-	// Marat Fayzullin and others clear the decimal mode here
-	cpu.Status.NoInterrupt = true // TODO: Marat Fayzullin doesn't do this
+	// Marat Fayzullin and others clear the decimal mode here (NES specific?)
+	cpu.Status.NoInterrupt = true  // TODO: Marat Fayzullin doesn't do this (NES specific?)
 	cpu.PC = cpu.getUint16(0xFFFA) // Jump to NMI vector
-
 	cpu.cycles = 7
 	return cpu.cycles
 }

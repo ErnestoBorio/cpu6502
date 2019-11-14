@@ -2,10 +2,8 @@ package cpu6502
 
 const rightmostBit = 1
 const leftmostBit  = 1<<7
-const bit6         = 1<<6
 const signBit      = leftmostBit
 const highByte     = 0xFF00
-const lowByte      = 0x00FF
 
 func (cpu *CPU) calculateZeroNegative(value byte) {
 	cpu.Status.Zero = value == 0
@@ -180,7 +178,7 @@ func (cpu *CPU) ora(address uint16) {
 func (cpu *CPU) bit(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Zero =     value & cpu.A == 0
-	cpu.Status.Overflow = value & bit6 != 0
+	cpu.Status.Overflow = value & (1<<6) != 0 // bit #6
 	cpu.Status.Negative = value & signBit != 0
 }
 
@@ -190,14 +188,14 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 	cpu.PC++
 	if flag == condition {
 		cpu.cycles++
-		oldPage := cpu.PC & highByte
+		oldPage := cpu.PC & 0xFF00 // high byte
 		if jump & signBit > 0 { // relative jump is negative
 			cpu.PC += uint16(jump) - 0x100 // subtract jump's 2's complement
 		} else {
 			cpu.PC += uint16(jump)
 		}
 		// Branching crosses page boundary?
-		if oldPage != cpu.PC & highByte {
+		if oldPage != cpu.PC & 0xFF00 { // high byte
 			cpu.cycles++
 		}
 	}
@@ -273,7 +271,7 @@ func (cpu *CPU) jumpAbsolute() {
 func (cpu *CPU) jumpIndirect() {
 	pointer := cpu.getUint16(cpu.PC)
 	cpu.PC = uint16(cpu.ReadMemory(pointer)) // low byte
-	if (pointer & lowByte) == 0xFF { // address wraps around page
+	if (pointer & 0xFF) == 0xFF { // address wraps around page
 		pointer -= 0x100
 	}
 	pointer++
@@ -286,7 +284,7 @@ func (cpu *CPU) jsr() {
 	// Will be fixed on RTS
 	returnAddress := cpu.PC + 1
 	cpu.push( byte( returnAddress >>8)) // address' high byte
-	cpu.push( byte( returnAddress & lowByte)) // address' low byte
+	cpu.push( byte( returnAddress & 0xFF)) // address' low byte
 	cpu.PC = cpu.getUint16(cpu.PC) // Jump
 }
 
@@ -307,7 +305,7 @@ func (cpu *CPU) rti() {
 // BRK (brk = true) and IRQ interrupt (brk = false)
 func (cpu *CPU) irq(brk bool) {
 	cpu.push( byte( cpu.PC >>8)) // PC's high byte
-	cpu.push( byte( cpu.PC & lowByte)) // PC's low byte
+	cpu.push( byte( cpu.PC & 0xFF)) // PC's low byte
 	
 	flags := cpu.packStatus()
 	if brk { // set the break virtual flag

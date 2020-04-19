@@ -48,6 +48,7 @@ func (cpu *CPU) Init(read func(uint16) byte, write func(uint16, byte)) {
 
 // Jump to the address where the reset vector points to
 func (cpu *CPU) Reset() {
+	// WIP Shouldn't we reset the stack pointer here?
 	cpu.PC = cpu.getUint16(0xFFFC)
 }
 

@@ -63,8 +63,8 @@ func (cpu *CPU) IRQ() uint8 {
 
 // Trigger an external NMI interrupt
 func (cpu *CPU) NMI() uint8 {
-	cpu.push(byte(cpu.PC >> 8))      // PC's high byte
-	cpu.push(byte(cpu.PC & lowByte)) // PC's low byte
+	cpu.push(byte(cpu.PC >> 8))   // PC's high byte
+	cpu.push(byte(cpu.PC & 0xFF)) // PC's low byte
 	cpu.push(cpu.packStatus())
 	// Marat Fayzullin and others clear the decimal mode here (NES specific?)
 	cpu.Status.NoInterrupt = true  // TODO: Marat Fayzullin doesn't do this (NES specific?)

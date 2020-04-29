@@ -109,7 +109,7 @@ func (cpu *CPU) DbgIndirectIndexedY(pc uint16) uint16 {
 func (cpu *CPU) DbgIndirect(pc uint16) uint16 {
 	pointer := cpu.DbgGetUint16(pc)
 	address := uint16(cpu.DbgReadMemory(pointer)) // low byte
-	if (pointer & lowByte) == 0xFF {              // address wraps around page
+	if (pointer & 0xFF) == 0xFF {                 // address wraps around page
 		pointer -= 0x100
 	}
 	pointer++

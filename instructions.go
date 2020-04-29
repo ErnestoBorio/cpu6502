@@ -1,13 +1,13 @@
 package cpu6502
 
 const rightmostBit = 1
-const leftmostBit  = 1<<7
-const signBit      = leftmostBit
-const highByte     = 0xFF00
+const leftmostBit = 1 << 7
+const signBit = leftmostBit
+const highByte = 0xFF00
 
 func (cpu *CPU) calculateZeroNegative(value byte) {
 	cpu.Status.Zero = value == 0
-	cpu.Status.Negative = value & signBit != 0
+	cpu.Status.Negative = value&signBit != 0
 }
 
 // LDA LDX LDY
@@ -68,7 +68,7 @@ func (cpu *CPU) sbc(address uint16) {
 // CMP CPX CPY
 func (cpu *CPU) compare(register byte, address uint16) {
 	value := cpu.ReadMemory(address)
-	cpu.Status.Zero  = register == value
+	cpu.Status.Zero = register == value
 	cpu.Status.Carry = register >= value
 	cpu.Status.Negative = ((register - value) & signBit) != 0
 }
@@ -76,7 +76,7 @@ func (cpu *CPU) compare(register byte, address uint16) {
 // ASL A
 func (cpu *CPU) asla() {
 	cpu.Status.Carry = (cpu.A & leftmostBit) == leftmostBit
-	cpu.A = cpu.A <<1
+	cpu.A = cpu.A << 1
 	cpu.calculateZeroNegative(cpu.A)
 }
 
@@ -84,7 +84,7 @@ func (cpu *CPU) asla() {
 func (cpu *CPU) asl(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Carry = (value & leftmostBit) == leftmostBit
-	value = value <<1
+	value = value << 1
 	cpu.calculateZeroNegative(value)
 	cpu.WriteMemory(address, value)
 }
@@ -92,7 +92,7 @@ func (cpu *CPU) asl(address uint16) {
 // LSR A
 func (cpu *CPU) lsra() {
 	cpu.Status.Carry = (cpu.A & rightmostBit) == rightmostBit
-	cpu.A = cpu.A >>1
+	cpu.A = cpu.A >> 1
 	cpu.calculateZeroNegative(cpu.A)
 }
 
@@ -100,7 +100,7 @@ func (cpu *CPU) lsra() {
 func (cpu *CPU) lsr(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Carry = (value & rightmostBit) == rightmostBit
-	value = value >>1
+	value = value >> 1
 	cpu.calculateZeroNegative(value)
 	cpu.WriteMemory(address, value)
 }
@@ -112,7 +112,7 @@ func (cpu *CPU) rola() {
 		oldCarry = 1
 	}
 	cpu.Status.Carry = (cpu.A & leftmostBit) > 0
-	cpu.A = ( cpu.A <<1 ) | oldCarry
+	cpu.A = (cpu.A << 1) | oldCarry
 	cpu.calculateZeroNegative(cpu.A)
 }
 
@@ -124,7 +124,7 @@ func (cpu *CPU) rol(address uint16) {
 		oldCarry = 1
 	}
 	cpu.Status.Carry = (value & leftmostBit) > 0
-	value = ( value <<1 ) | oldCarry
+	value = (value << 1) | oldCarry
 	cpu.calculateZeroNegative(value)
 	cpu.WriteMemory(address, value)
 }
@@ -133,7 +133,7 @@ func (cpu *CPU) rol(address uint16) {
 func (cpu *CPU) rora() {
 	oldCarry := byte(0)
 	cpu.Status.Carry = (cpu.A & rightmostBit) > 0
-	cpu.A = (cpu.A >>1) | (oldCarry <<7)
+	cpu.A = (cpu.A >> 1) | (oldCarry << 7)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
@@ -145,7 +145,7 @@ func (cpu *CPU) ror(address uint16) {
 		oldCarry = 1
 	}
 	cpu.Status.Carry = (value & rightmostBit) > 0
-	value = (value >>1) | (oldCarry <<7)
+	value = (value >> 1) | (oldCarry << 7)
 	cpu.calculateZeroNegative(value)
 	cpu.WriteMemory(address, value)
 }
@@ -177,9 +177,9 @@ func (cpu *CPU) ora(address uint16) {
 // BIT
 func (cpu *CPU) bit(address uint16) {
 	value := cpu.ReadMemory(address)
-	cpu.Status.Zero =     value & cpu.A == 0
-	cpu.Status.Overflow = value & (1<<6) != 0 // bit #6
-	cpu.Status.Negative = value & signBit != 0
+	cpu.Status.Zero = value&cpu.A == 0
+	cpu.Status.Overflow = value&(1<<6) != 0 // bit #6
+	cpu.Status.Negative = value&signBit != 0
 }
 
 // BEQ BNE BPL BMI BVS BVC BCS BCC
@@ -189,13 +189,13 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 	if flag == condition {
 		cpu.cycles++
 		oldPage := cpu.PC & 0xFF00 // high byte
-		if jump & signBit > 0 { // relative jump is negative
+		if jump&signBit > 0 {      // relative jump is negative
 			cpu.PC += uint16(jump) - 0x100 // subtract jump's 2's complement
 		} else {
 			cpu.PC += uint16(jump)
 		}
 		// Branching crosses page boundary?
-		if oldPage != cpu.PC & 0xFF00 { // high byte
+		if oldPage != cpu.PC&0xFF00 { // high byte
 			cpu.cycles++
 		}
 	}
@@ -220,24 +220,24 @@ func (cpu *CPU) pla() {
 }
 
 func (cpu *CPU) packStatus() byte {
-	flags := byte(1<<5) // unused bit 5 always set
+	flags := byte(1 << 5) // unused bit 5 always set
 	if cpu.Status.Carry {
 		flags |= 1
 	}
 	if cpu.Status.Zero {
-		flags |= 1<<1
+		flags |= 1 << 1
 	}
 	if cpu.Status.NoInterrupt {
-		flags |= 1<<2
+		flags |= 1 << 2
 	}
 	if cpu.Status.Decimal {
-		flags |= 1<<3
+		flags |= 1 << 3
 	}
 	if cpu.Status.Overflow {
-		flags |= 1<<6
+		flags |= 1 << 6
 	}
 	if cpu.Status.Negative {
-		flags |= 1<<7
+		flags |= 1 << 7
 	}
 	return flags
 }
@@ -247,19 +247,19 @@ func (cpu *CPU) php() {
 	// http://nesdev.com/the 'B' flag & BRK instruction.txt
 	// According to Brad Taylor PHP pushes the break flag as 1
 	// Also the unused flag bit 5 is always 1
-	flags := cpu.packStatus() | (1<<4) | (1<<5)
+	flags := cpu.packStatus() | (1 << 4) | (1 << 5)
 	cpu.push(flags)
 }
 
 // PLP
 func (cpu *CPU) plp() {
 	flags := cpu.pull()
-	cpu.Status.Carry       = flags & (1<<0) != 0
-	cpu.Status.Zero        = flags & (1<<1) != 0
-	cpu.Status.NoInterrupt = flags & (1<<2) != 0
-	cpu.Status.Decimal     = flags & (1<<3) != 0
-	cpu.Status.Overflow    = flags & (1<<6) != 0
-	cpu.Status.Negative    = flags & (1<<7) != 0
+	cpu.Status.Carry = flags&(1<<0) != 0
+	cpu.Status.Zero = flags&(1<<1) != 0
+	cpu.Status.NoInterrupt = flags&(1<<2) != 0
+	cpu.Status.Decimal = flags&(1<<3) != 0
+	cpu.Status.Overflow = flags&(1<<6) != 0
+	cpu.Status.Negative = flags&(1<<7) != 0
 }
 
 // JMP
@@ -271,11 +271,11 @@ func (cpu *CPU) jumpAbsolute() {
 func (cpu *CPU) jumpIndirect() {
 	pointer := cpu.getUint16(cpu.PC)
 	cpu.PC = uint16(cpu.ReadMemory(pointer)) // low byte
-	if (pointer & 0xFF) == 0xFF { // address wraps around page
+	if (pointer & 0xFF) == 0xFF {            // address wraps around page
 		pointer -= 0x100
 	}
 	pointer++
-	cpu.PC |= uint16(cpu.ReadMemory(pointer)) <<8 // high byte
+	cpu.PC |= uint16(cpu.ReadMemory(pointer)) << 8 // high byte
 }
 
 // JSR
@@ -283,15 +283,15 @@ func (cpu *CPU) jsr() {
 	// return address is off by -1, pointing to JSR's last byte.
 	// Will be fixed on RTS
 	returnAddress := cpu.PC + 1
-	cpu.push( byte( returnAddress >>8)) // address' high byte
-	cpu.push( byte( returnAddress & 0xFF)) // address' low byte
-	cpu.PC = cpu.getUint16(cpu.PC) // Jump
+	cpu.push(byte(returnAddress >> 8))   // address' high byte
+	cpu.push(byte(returnAddress & 0xFF)) // address' low byte
+	cpu.PC = cpu.getUint16(cpu.PC)       // Jump
 }
 
 // RTS
 func (cpu *CPU) rts() {
 	cpu.PC = uint16(cpu.pull())
-	cpu.PC |= uint16(cpu.pull()) <<8
+	cpu.PC |= uint16(cpu.pull()) << 8
 	cpu.PC++ // Fix JSR's off by -1 return address
 }
 
@@ -299,17 +299,17 @@ func (cpu *CPU) rts() {
 func (cpu *CPU) rti() {
 	cpu.plp()
 	cpu.PC = uint16(cpu.pull())
-	cpu.PC |= uint16(cpu.pull()) <<8
+	cpu.PC |= uint16(cpu.pull()) << 8
 }
 
 // BRK (brk = true) and IRQ interrupt (brk = false)
 func (cpu *CPU) irq(brk bool) {
-	cpu.push( byte( cpu.PC >>8)) // PC's high byte
-	cpu.push( byte( cpu.PC & 0xFF)) // PC's low byte
-	
+	cpu.push(byte(cpu.PC >> 8))   // PC's high byte
+	cpu.push(byte(cpu.PC & 0xFF)) // PC's low byte
+
 	flags := cpu.packStatus()
 	if brk { // set the break virtual flag
-		flags |= 1<<4
+		flags |= 1 << 4
 	}
 	cpu.push(flags)
 	// TODO: DarcNES unsets decimal flag here, other sources don't

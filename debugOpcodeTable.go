@@ -11,7 +11,7 @@ type Operation struct {
 }
 
 // Only BRK (00) operation has no cycles here, because they're accounted for in the IRQ interrupt handler
-var Opcodes = [0x100] Operation {
+var DebugOpcodes = [0x100] Operation {
 	{ Opcode: 0x00, Mnemonic: "BRK", Length: 2, Cycles: 0, Documented: true,  Addressing: ""   , AddressFunc: (*CPU).DbgNoAddressing },
 	{ Opcode: 0x01, Mnemonic: "ORA", Length: 2, Cycles: 6, Documented: true,  Addressing: "IIX", AddressFunc: (*CPU).DbgIndexedIndirectX },
 	{ Opcode: 0x02, Mnemonic: ""   , Length: 0, Cycles: 2, Documented: false, Addressing: ""   , AddressFunc: (*CPU).DbgNoAddressing },

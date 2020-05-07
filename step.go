@@ -1,10 +1,11 @@
 package cpu6502
 
-func (cpu *CPU) Step() uint8 {
+func (cpu *CPU) Step() int {
 	opcode := cpu.ReadMemory(cpu.PC)
 	cpu.PC++
-	cpu.cycles = opcodeCycles[opcode]
+	cpu.tmpCycles = opcodeCycles[opcode]
 	// TODO: byte following PC is read in advance. Test it
+	// Addressing functions advance the PC
 
 	switch opcode {
 		// LDA LDX LDY
@@ -168,18 +169,17 @@ func (cpu *CPU) Step() uint8 {
 		case JSR_20: cpu.jsr()
 		case RTI_40: cpu.rti()
 		case RTS_60: cpu.rts()
-		// The byte following BRK is skipped, so it's like a 2 byte instruction
-		case BRK_00: cpu.PC++; cpu.irq(true)
+		case BRK_00: cpu.PC++; cpu.irq(true) // The byte following BRK is skipped, so it's like a 2 byte instruction
 		case NOP_EA, 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: // implied undocumented NOPs
 		case 0x0C, 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC: cpu.PC += 2 // absolute undoc NOPs
 		case 0x80, 0x82, 0x89, 0xC2, 0xE2, 0x04, 0x14, 0x34, 0x44, 0x54, 0x64, 
 			 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs
 		default: panic("Undocumented opcode")
 	}
-	return cpu.cycles
+	return cpu.tmpCycles
 }
 
-var opcodeCycles = [0x100] byte {
+var opcodeCycles = [0x100] int {
 //  0 1 2 3 4 5 6 7 8 9 A B C D E F
 	0,6,2,8,3,3,5,5,3,2,2,2,4,4,6,6, //00
 	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //10

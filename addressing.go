@@ -30,7 +30,7 @@ func (cpu *CPU) absolute() uint16 {
 func (cpu *CPU) absoluteIndexed(index byte) uint16 {
 	address := uint16(cpu.ReadMemory(cpu.PC)) + uint16(index)
 	if address > 0xFF { // if crossed page boundary
-		cpu.cycles++
+		cpu.tmpCycles++
 	}
 	cpu.PC++
 	address += (uint16(cpu.ReadMemory(cpu.PC)) << 8)
@@ -52,7 +52,7 @@ func (cpu *CPU) indirectIndexedY() uint16 {
 	cpu.PC++
 	address := uint16(cpu.ReadMemory(uint16(base))) + uint16(cpu.Y)
 	if address > 0xFF {
-		cpu.cycles++
+		cpu.tmpCycles++
 	}
 	base++
 	return address + (uint16(cpu.ReadMemory(uint16(base))) << 8)

@@ -17,7 +17,7 @@ type CPU struct {
 		NoInterrupt bool
 	}
 
-	cycles uint8 // Cycle count of the last executed instruction [1..7]
+	tmpCycles int // Used temporarily inside CPU.Step() <Don't use>
 
 	// References to functions on the host system to access memory
 	ReadMemory  func(uint16) byte
@@ -43,7 +43,7 @@ func (cpu *CPU) Init(read func(uint16) byte, write func(uint16, byte)) {
 	cpu.Status.NoInterrupt = true
 	cpu.ReadMemory = read
 	cpu.WriteMemory = write
-	cpu.DbgReadMemory = read // Temporary WIP TODO
+	cpu.DbgReadMemory = read // Temporary WIP
 }
 
 // Jump to the address where the reset vector points to
@@ -53,24 +53,21 @@ func (cpu *CPU) Reset() {
 }
 
 // Trigger an external IRQ interrupt
-func (cpu *CPU) IRQ() uint8 {
+func (cpu *CPU) IRQ() {
 	if !cpu.Status.NoInterrupt {
 		cpu.irq(false)
-		return cpu.cycles
 	}
-	return 0 // 0 CPU cycles executed
 }
 
 // Trigger an external NMI interrupt
-func (cpu *CPU) NMI() uint8 {
+func (cpu *CPU) NMI() {
 	cpu.push(byte(cpu.PC >> 8))   // PC's high byte
 	cpu.push(byte(cpu.PC & 0xFF)) // PC's low byte
 	cpu.push(cpu.packStatus())
 	// Marat Fayzullin and others clear the decimal mode here (NES specific?)
 	cpu.Status.NoInterrupt = true  // TODO: Marat Fayzullin doesn't do this (NES specific?)
 	cpu.PC = cpu.getUint16(0xFFFA) // Jump to NMI vector
-	cpu.cycles = 7
-	return cpu.cycles
+	cpu.tmpCycles = 7
 }
 
 // Get a little endian 16 bits value from 2 consecutive memory addresses

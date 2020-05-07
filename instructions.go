@@ -187,7 +187,7 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 	jump := cpu.ReadMemory(cpu.PC)
 	cpu.PC++
 	if flag == condition {
-		cpu.cycles++
+		cpu.tmpCycles++
 		oldPage := cpu.PC & 0xFF00 // high byte
 		if jump&signBit > 0 {      // relative jump is negative
 			cpu.PC += uint16(jump) - 0x100 // subtract jump's 2's complement
@@ -196,7 +196,7 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 		}
 		// Branching crosses page boundary?
 		if oldPage != cpu.PC&0xFF00 { // high byte
-			cpu.cycles++
+			cpu.tmpCycles++
 		}
 	}
 }
@@ -317,5 +317,5 @@ func (cpu *CPU) irq(brk bool) {
 	// Marat Fayzullin and others clear the decimal mode here
 	cpu.Status.NoInterrupt = true
 	cpu.PC = cpu.getUint16(0xFFFE) // Jump to IRQ/BRK vector
-	cpu.cycles = 7
+	cpu.tmpCycles = 7
 }

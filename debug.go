@@ -21,7 +21,7 @@ func (cpu *CPU) DbgFetchOp() StepInfo {
 	step.PC = cpu.PC
 	opcode := cpu.DbgReadMemory(cpu.PC)
 	step.Raw[0] = opcode
-	step.Operation = Opcodes[opcode]
+	step.Operation = DebugOpcodes[opcode]
 	step.Address = step.AddressFunc(cpu, cpu.PC+1)
 	step.Value = cpu.DbgReadMemory(step.Address)
 	if step.Length >= 2 {
@@ -73,7 +73,7 @@ func (cpu *CPU) DbgAbsolute(pc uint16) uint16 {
 func (cpu *CPU) DbgAbsoluteX(pc uint16) uint16 {
 	address := uint16(cpu.DbgReadMemory(pc)) + uint16(cpu.X)
 	if address > 0xFF { // if crossed page boundary
-		cpu.cycles++
+		cpu.tmpCycles++
 	}
 	address += (uint16(cpu.DbgReadMemory(pc+1)) << 8)
 	return address
@@ -82,7 +82,7 @@ func (cpu *CPU) DbgAbsoluteX(pc uint16) uint16 {
 func (cpu *CPU) DbgAbsoluteY(pc uint16) uint16 {
 	address := uint16(cpu.DbgReadMemory(pc)) + uint16(cpu.Y)
 	if address > 0xFF { // if crossed page boundary
-		cpu.cycles++
+		cpu.tmpCycles++
 	}
 	address += (uint16(cpu.DbgReadMemory(pc+1)) << 8)
 	return address
@@ -100,7 +100,7 @@ func (cpu *CPU) DbgIndirectIndexedY(pc uint16) uint16 {
 	base := cpu.DbgReadMemory(pc)
 	address := uint16(cpu.DbgReadMemory(uint16(base))) + uint16(cpu.Y)
 	if address > 0xFF {
-		cpu.cycles++
+		cpu.tmpCycles++
 	}
 	base++
 	return address + (uint16(cpu.DbgReadMemory(uint16(base))) << 8)

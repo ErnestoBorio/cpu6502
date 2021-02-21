@@ -1,6 +1,6 @@
 package cpu6502
 
-// Models the 6502 CPU
+// CPU Models the 6502 CPU
 type CPU struct {
 	PC    uint16 // Program counter
 	Stack byte   // Stack pointer
@@ -27,7 +27,7 @@ type CPU struct {
 	DbgReadMemory func(uint16) byte
 }
 
-// Initialize the state of the cpu as stated in:
+// Init Initializes the state of the cpu as stated in:
 // http://wiki.nesdev.com/w/index.php/CPU_power_up_state
 // https://www.c64-wiki.com/wiki/Reset_(Process)
 func (cpu *CPU) Init(read func(uint16) byte, write func(uint16, byte)) {
@@ -48,7 +48,7 @@ func (cpu *CPU) Init(read func(uint16) byte, write func(uint16, byte)) {
 
 // Jump to the address where the reset vector points to
 func (cpu *CPU) Reset() {
-	// WIP Shouldn't we reset the stack pointer here?
+	cpu.Stack = 0xFD
 	cpu.PC = cpu.getUint16(0xFFFC)
 }
 
@@ -59,18 +59,18 @@ func (cpu *CPU) IRQ() {
 	}
 }
 
-// Trigger an external NMI interrupt
+// NMI Triggers an external NMI interrupt
 func (cpu *CPU) NMI() {
 	cpu.push(byte(cpu.PC >> 8))   // PC's high byte
 	cpu.push(byte(cpu.PC & 0xFF)) // PC's low byte
 	cpu.push(cpu.packStatus())
-	// Marat Fayzullin and others clear the decimal mode here (NES specific?)
-	cpu.Status.NoInterrupt = true  // TODO: Marat Fayzullin doesn't do this (NES specific?)
+	// @todo Marat Fayzullin and others clear the decimal mode here (NES specific?)
+	cpu.Status.NoInterrupt = true  // @todo: Marat Fayzullin doesn't do this (NES specific?)
 	cpu.PC = cpu.getUint16(0xFFFA) // Jump to NMI vector
 	cpu.tmpCycles = 7
 }
 
-// Get a little endian 16 bits value from 2 consecutive memory addresses
+// getUint16 gets a little endian 16 bits value from 2 consecutive memory addresses
 func (cpu *CPU) getUint16(address uint16) uint16 {
 	value := uint16(cpu.ReadMemory(address))
 	value |= uint16(cpu.ReadMemory(address+1)) << 8

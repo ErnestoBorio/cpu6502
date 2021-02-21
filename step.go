@@ -1,11 +1,18 @@
 package cpu6502
 
 func (cpu *CPU) Step() int {
+	// Fetch operation code from current PC address
 	opcode := cpu.ReadMemory(cpu.PC)
+	// Advance PC for either first argument byte or next instruction
 	cpu.PC++
-	cpu.tmpCycles = opcodeCycles[opcode]
-	// TODO: byte following PC is read in advance. Test it
-	// Addressing functions advance the PC
+	// Count basic instruction cycles, they can be incremented afterwards in certain conditions
+	cpu.tmpCycles = Opcodes[opcode].Cycles
+	
+	// Call the appropriate instruction and addressing mode for the fetched opcode
+	Opcodes[opcode].Instruction(cpu, 
+		Opcodes[opcode].Addressing(cpu))
+	
+	// @todo: byte following opcode is read in advance. Test it
 
 	switch opcode {
 		// LDA LDX LDY
@@ -177,24 +184,4 @@ func (cpu *CPU) Step() int {
 		default: panic("Undocumented opcode")
 	}
 	return cpu.tmpCycles
-}
-
-var opcodeCycles = [0x100] int {
-//  0 1 2 3 4 5 6 7 8 9 A B C D E F
-	0,6,2,8,3,3,5,5,3,2,2,2,4,4,6,6, //00
-	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //10
-	6,6,2,8,3,3,5,5,4,2,2,2,4,4,6,6, //20
-	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //30
-	6,6,2,8,3,3,5,5,3,2,2,2,3,4,6,6, //40
-	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //50
-	6,6,2,8,3,3,5,5,4,2,2,2,5,4,6,6, //60
-	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //70
-	2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4, //80
-	2,6,2,6,4,4,4,4,2,5,2,5,5,5,5,5, //90
-	2,6,2,6,3,3,3,3,2,2,2,2,4,4,4,4, //A0
-	2,5,2,5,4,4,4,4,2,4,2,4,4,4,4,4, //B0
-	2,6,2,8,3,3,5,5,2,2,2,2,4,4,6,6, //C0
-	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //D0
-	2,6,3,8,3,3,5,5,2,2,2,2,4,4,6,6, //E0
-	2,5,2,8,4,4,6,6,2,4,2,7,4,4,7,7, //F0
 }

@@ -1,18 +1,15 @@
+// package main Generates cpu6502/opcodeTable.go that holds the info needed to disassemble any cpu operation
 package main
 
 import (
 	"fmt"
 )
 
-/*
-	Generates cpu6502/opcodeTable.go that holds the info needed to disassemble any cpu operation
-*/
-
 func main() {
 	ops := [0x100]Opcode{}
 
 	// Initialize all operations as undocumented
-	for cod,_:= range ops {
+	for cod := range ops {
 		ops[cod] = Opcode {
 			mnemonic: "",
 			addressing: "",

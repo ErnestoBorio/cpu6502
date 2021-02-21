@@ -3,38 +3,71 @@ package cpu6502
 const rightmostBit = 1
 const leftmostBit = 1 << 7
 const signBit = leftmostBit
-const highByte = 0xFF00
 
 func (cpu *CPU) calculateZeroNegative(value byte) {
 	cpu.Status.Zero = value == 0
 	cpu.Status.Negative = value&signBit != 0
 }
 
-// LDA LDX LDY
-func (cpu *CPU) loadReg(register *byte, address uint16) {
-	*register = cpu.ReadMemory(address)
-	cpu.calculateZeroNegative(*register)
+func (cpu *CPU) lda(address uint16) {
+	cpu.A = cpu.ReadMemory(address)
+	cpu.calculateZeroNegative(cpu.A)
 }
 
-// STA STX STY
-func (cpu *CPU) storeReg(value byte, address uint16) {
-	cpu.WriteMemory(address, value)
+func (cpu *CPU) ldx(address uint16) {
+	cpu.X = cpu.ReadMemory(address)
+	cpu.calculateZeroNegative(cpu.X)
 }
 
-// INX DEX INY DEY
-func (cpu *CPU) incDecReg(register *byte, delta int) {
-	*register += byte(delta)
-	cpu.calculateZeroNegative(*register)
+func (cpu *CPU) ldy(address uint16) {
+	cpu.Y = cpu.ReadMemory(address)
+	cpu.calculateZeroNegative(cpu.Y)
 }
 
-// INC DEC
-func (cpu *CPU) incDec(address uint16, delta int) {
-	value := cpu.ReadMemory(address) + byte(delta)
+func (cpu *CPU) sta(address uint16) {
+	cpu.WriteMemory(address, cpu.A)
+}
+
+func (cpu *CPU) stx(address uint16) {
+	cpu.WriteMemory(address, cpu.X)
+}
+
+func (cpu *CPU) sty(address uint16) {
+	cpu.WriteMemory(address, cpu.Y)
+}
+
+func (cpu *CPU) inx(uint16) {
+	cpu.X++
+	cpu.calculateZeroNegative(cpu.X)
+}
+
+func (cpu *CPU) dex(uint16) {
+	cpu.X--
+	cpu.calculateZeroNegative(cpu.X)
+}
+
+func (cpu *CPU) iny(uint16) {
+	cpu.Y++
+	cpu.calculateZeroNegative(cpu.Y)
+}
+
+func (cpu *CPU) dey(uint16) {
+	cpu.Y--
+	cpu.calculateZeroNegative(cpu.Y)
+}
+
+func (cpu *CPU) inc(address uint16) {
+	value := cpu.ReadMemory(address) + 1
 	cpu.WriteMemory(address, value)
 	cpu.calculateZeroNegative(value)
 }
 
-// ADC
+func (cpu *CPU) dec(address uint16) {
+	value := cpu.ReadMemory(address) - 1
+	cpu.WriteMemory(address, value)
+	cpu.calculateZeroNegative(value)
+}
+
 func (cpu *CPU) adc(address uint16) {
 	value := cpu.ReadMemory(address)
 	var sum byte
@@ -45,7 +78,7 @@ func (cpu *CPU) adc(address uint16) {
 		sum = cpu.A + value
 		cpu.Status.Carry = sum < cpu.A
 	}
-	cpu.Status.Overflow = ((cpu.A ^ byte(sum)) & (value ^ byte(sum)) & signBit) != 0 // TODO Test this
+	cpu.Status.Overflow = ((cpu.A ^ byte(sum)) & (value ^ byte(sum)) & signBit) != 0 // @todo Test this
 	cpu.A = sum
 	cpu.calculateZeroNegative(cpu.A)
 }
@@ -65,7 +98,6 @@ func (cpu *CPU) sbc(address uint16) {
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// CMP CPX CPY
 func (cpu *CPU) compare(register byte, address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Zero = register == value
@@ -73,14 +105,24 @@ func (cpu *CPU) compare(register byte, address uint16) {
 	cpu.Status.Negative = ((register - value) & signBit) != 0
 }
 
-// ASL A
-func (cpu *CPU) asla() {
+func (cpu *CPU) cmp(address uint16) {
+	cpu.compare(cpu.A, address)
+}
+
+func (cpu *CPU) cpx(address uint16) {
+	cpu.compare(cpu.X, address)
+}
+
+func (cpu *CPU) cpy(address uint16) {
+	cpu.compare(cpu.Y, address)
+}
+
+func (cpu *CPU) asla(uint16) {
 	cpu.Status.Carry = (cpu.A & leftmostBit) == leftmostBit
 	cpu.A = cpu.A << 1
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// ASL
 func (cpu *CPU) asl(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Carry = (value & leftmostBit) == leftmostBit
@@ -89,14 +131,12 @@ func (cpu *CPU) asl(address uint16) {
 	cpu.WriteMemory(address, value)
 }
 
-// LSR A
-func (cpu *CPU) lsra() {
+func (cpu *CPU) lsra(uint16) {
 	cpu.Status.Carry = (cpu.A & rightmostBit) == rightmostBit
 	cpu.A = cpu.A >> 1
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// LSR
 func (cpu *CPU) lsr(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Carry = (value & rightmostBit) == rightmostBit
@@ -105,8 +145,7 @@ func (cpu *CPU) lsr(address uint16) {
 	cpu.WriteMemory(address, value)
 }
 
-// ROL A
-func (cpu *CPU) rola() {
+func (cpu *CPU) rola(uint16) {
 	oldCarry := byte(0)
 	if cpu.Status.Carry {
 		oldCarry = 1
@@ -116,7 +155,6 @@ func (cpu *CPU) rola() {
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// ROL
 func (cpu *CPU) rol(address uint16) {
 	value := cpu.ReadMemory(address)
 	oldCarry := byte(0)
@@ -129,15 +167,13 @@ func (cpu *CPU) rol(address uint16) {
 	cpu.WriteMemory(address, value)
 }
 
-// ROR A
-func (cpu *CPU) rora() {
+func (cpu *CPU) rora(uint16) {
 	oldCarry := byte(0)
 	cpu.Status.Carry = (cpu.A & rightmostBit) > 0
 	cpu.A = (cpu.A >> 1) | (oldCarry << 7)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// ROR
 func (cpu *CPU) ror(address uint16) {
 	value := cpu.ReadMemory(address)
 	oldCarry := byte(0)
@@ -150,31 +186,50 @@ func (cpu *CPU) ror(address uint16) {
 	cpu.WriteMemory(address, value)
 }
 
-// TAX TXA TAY TYA TSX
-func (cpu *CPU) transferRegister(from byte, to *byte) {
-	*to = from
-	cpu.calculateZeroNegative(from)
+func (cpu *CPU) tax(uint16) {
+	cpu.X = cpu.A
+	cpu.calculateZeroNegative(cpu.X)
 }
 
-// AND
+func (cpu *CPU) txa(uint16) {
+	cpu.A = cpu.X
+	cpu.calculateZeroNegative(cpu.A)
+}
+
+func (cpu *CPU) tay(uint16) {
+	cpu.Y = cpu.A
+	cpu.calculateZeroNegative(cpu.Y)
+}
+
+func (cpu *CPU) tya(uint16) {
+	cpu.A = cpu.Y
+	cpu.calculateZeroNegative(cpu.A)
+}
+
+func (cpu *CPU) tsx(uint16) {
+	cpu.X = cpu.Stack
+	cpu.calculateZeroNegative(cpu.X)
+}
+
+func (cpu *CPU) txs(uint16) {
+	cpu.Stack = cpu.X
+}
+
 func (cpu *CPU) and(address uint16) {
 	cpu.A &= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// EOR
 func (cpu *CPU) eor(address uint16) {
 	cpu.A ^= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// ORA
 func (cpu *CPU) ora(address uint16) {
 	cpu.A |= cpu.ReadMemory(address)
 	cpu.calculateZeroNegative(cpu.A)
 }
 
-// BIT
 func (cpu *CPU) bit(address uint16) {
 	value := cpu.ReadMemory(address)
 	cpu.Status.Zero = value&cpu.A == 0
@@ -182,7 +237,6 @@ func (cpu *CPU) bit(address uint16) {
 	cpu.Status.Negative = value&signBit != 0
 }
 
-// BEQ BNE BPL BMI BVS BVC BCS BCC
 func (cpu *CPU) branch(flag bool, condition bool) {
 	jump := cpu.ReadMemory(cpu.PC)
 	cpu.PC++
@@ -201,6 +255,38 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 	}
 }
 
+func (cpu *CPU) beq(uint16) {
+	cpu.branch(cpu.Status.Zero, true)
+}
+
+func (cpu *CPU) bne(uint16) {
+	cpu.branch(cpu.Status.Zero, false)
+}
+
+func (cpu *CPU) bpl(uint16) {
+	cpu.branch(cpu.Status.Negative, false)
+}
+
+func (cpu *CPU) bmi(uint16) {
+	cpu.branch(cpu.Status.Negative, true)
+}
+
+func (cpu *CPU) bvs(uint16) {
+	cpu.branch(cpu.Status.Overflow, true)
+}
+
+func (cpu *CPU) bvc(uint16) {
+	cpu.branch(cpu.Status.Overflow, false)
+}
+
+func (cpu *CPU) bcs(uint16) {
+	cpu.branch(cpu.Status.Carry, true)
+}
+
+func (cpu *CPU) bcc(uint16) {
+	cpu.branch(cpu.Status.Carry, false)
+}
+
 func (cpu *CPU) push(value byte) {
 	stack := 0x100 + uint16(cpu.Stack)
 	cpu.WriteMemory(stack, value)
@@ -211,12 +297,6 @@ func (cpu *CPU) pull() byte {
 	cpu.Stack++
 	stack := 0x100 + uint16(cpu.Stack)
 	return cpu.ReadMemory(stack)
-}
-
-// PLA
-func (cpu *CPU) pla() {
-	cpu.A = cpu.pull()
-	cpu.calculateZeroNegative(cpu.A)
 }
 
 func (cpu *CPU) packStatus() byte {
@@ -242,8 +322,7 @@ func (cpu *CPU) packStatus() byte {
 	return flags
 }
 
-// PHP
-func (cpu *CPU) php() {
+func (cpu *CPU) php(uint16) {
 	// http://nesdev.com/the 'B' flag & BRK instruction.txt
 	// According to Brad Taylor PHP pushes the break flag as 1
 	// Also the unused flag bit 5 is always 1
@@ -251,8 +330,11 @@ func (cpu *CPU) php() {
 	cpu.push(flags)
 }
 
-// PLP
-func (cpu *CPU) plp() {
+func (cpu *CPU) pha(uint16) {
+	cpu.push(cpu.A)
+}
+
+func (cpu *CPU) plp(uint16) {
 	flags := cpu.pull()
 	cpu.Status.Carry = flags&(1<<0) != 0
 	cpu.Status.Zero = flags&(1<<1) != 0
@@ -262,42 +344,42 @@ func (cpu *CPU) plp() {
 	cpu.Status.Negative = flags&(1<<7) != 0
 }
 
-// JMP
-func (cpu *CPU) jumpAbsolute() {
-	cpu.PC = cpu.getUint16(cpu.PC)
+func (cpu *CPU) pla(uint16) {
+	cpu.A = cpu.pull()
+	cpu.calculateZeroNegative(cpu.A)
 }
 
 // JMP
-func (cpu *CPU) jumpIndirect() {
-	pointer := cpu.getUint16(cpu.PC)
-	cpu.PC = uint16(cpu.ReadMemory(pointer)) // low byte
-	if (pointer & 0xFF) == 0xFF {            // address wraps around page
-		pointer -= 0x100
+func (cpu *CPU) jumpAbsolute(address uint16) {
+	cpu.PC = address
+}
+
+// JMP
+func (cpu *CPU) jumpIndirect(address uint16) {
+	cpu.PC = uint16(cpu.ReadMemory(address)) // low byte
+	if (address & 0xFF) == 0xFF {            // address wraps around page
+		address -= 0x100
 	}
-	pointer++
-	cpu.PC |= uint16(cpu.ReadMemory(pointer)) << 8 // high byte
+	address++
+	cpu.PC |= uint16(cpu.ReadMemory(address)) << 8 // high byte
 }
 
-// JSR
-func (cpu *CPU) jsr() {
-	// return address is off by -1, pointing to JSR's last byte.
-	// Will be fixed on RTS
+func (cpu *CPU) jsr(uint16) {
+	// Return address is off by -1, pointing to JSR's last byte. Will be fixed on RTS
 	returnAddress := cpu.PC + 1
 	cpu.push(byte(returnAddress >> 8))   // address' high byte
 	cpu.push(byte(returnAddress & 0xFF)) // address' low byte
 	cpu.PC = cpu.getUint16(cpu.PC)       // Jump
 }
 
-// RTS
-func (cpu *CPU) rts() {
+func (cpu *CPU) rts(uint16) {
 	cpu.PC = uint16(cpu.pull())
 	cpu.PC |= uint16(cpu.pull()) << 8
 	cpu.PC++ // Fix JSR's off by -1 return address
 }
 
-// RTI
-func (cpu *CPU) rti() {
-	cpu.plp()
+func (cpu *CPU) rti(uint16) {
+	cpu.plp(0)
 	cpu.PC = uint16(cpu.pull())
 	cpu.PC |= uint16(cpu.pull()) << 8
 }
@@ -312,10 +394,36 @@ func (cpu *CPU) irq(brk bool) {
 		flags |= 1 << 4
 	}
 	cpu.push(flags)
-	// TODO: DarcNES unsets decimal flag here, other sources don't
+	// @todo: DarcNES unsets decimal flag here, other sources don't
 	// "NMOS 6502 do not clear the decimal mode flag when an interrupt occurs"
 	// Marat Fayzullin and others clear the decimal mode here
 	cpu.Status.NoInterrupt = true
 	cpu.PC = cpu.getUint16(0xFFFE) // Jump to IRQ/BRK vector
 	cpu.tmpCycles = 7
 }
+
+func (cpu *CPU) brk(uint16) {
+	cpu.irq(true)
+}
+
+func (cpu *CPU) nop(uint16) {}
+
+func (cpu *CPU) nop2(uint16) {
+	cpu.PC += 1
+}
+
+func (cpu *CPU) nop3(uint16) {
+	cpu.PC += 2
+}
+
+// Undocumented opcodes
+func (cpu *CPU) undoc(uint16) {}
+
+
+
+/** @todo 
+CLC SEC CLI SEI CLD SED CLV 
+NOP_EA, 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: // implied undocumented NOPs (1 byte wide)
+0x0C, 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC: cpu.PC += 2 // absolute undoc NOPs (3 bytes wide)
+0x80, 0x82, 0x89, 0xC2, 0xE2, 0x04, 0x14, 0x34, 0x44, 0x54, 0x64, 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs (2 bytes wide)
+*/

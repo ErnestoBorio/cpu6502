@@ -1,10 +1,11 @@
 package main
 
 import (
-  "go64/cpu6502"
-  "fmt"
-  "os"
-  "io/ioutil"
+	"fmt"
+	"io/ioutil"
+	"os"
+
+	"github.com/Drean64/cpu6502"
 )
 
 var mem []byte
@@ -16,9 +17,10 @@ func main() {
 		panic(err)
 	}
 	cpu := cpu6502.CPU{}
-	cpu.ReadMemory = func(adr uint16) byte { return mem[adr] }
-	cpu.WriteMemory = func(adr uint16, val byte) { mem[adr] = val }
-	cpu.Init()
+	cpu.Init(
+		func(adr uint16) byte { return mem[adr] },
+		func(adr uint16, val byte) { mem[adr] = val },
+	)
 	
 	cpu.PC = Tests_Start
 	stop: for ;; {

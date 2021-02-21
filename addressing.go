@@ -1,26 +1,34 @@
 package cpu6502
 
-// Returns the address following the opcode (PC+1)
+// noAddressing is a dummy function for opcodes with no addressing, E.G. INX, NOP
+func (*CPU) noAddressing() uint16 {
+	return 0
+}
+
 func (cpu *CPU) immediate() uint16 {
 	address := cpu.PC
 	cpu.PC++
 	return address
 }
 
-// Returns zero page address from PC's following byte
 func (cpu *CPU) zeroPage() uint16 {
 	address := uint16(cpu.ReadMemory(cpu.PC))
 	cpu.PC++
 	return address
 }
 
-func (cpu *CPU) zeroPageIndexed(index byte) uint16 {
-	address := uint16(cpu.ReadMemory(cpu.PC) + index)
+func (cpu *CPU) zeroPageX() uint16 {
+	address := uint16(cpu.ReadMemory(cpu.PC) + cpu.X)
 	cpu.PC++
 	return address
 }
 
-// Returns absolute address from PC's following 2 bytes
+func (cpu *CPU) zeroPageY() uint16 {
+	address := uint16(cpu.ReadMemory(cpu.PC) + cpu.Y)
+	cpu.PC++
+	return address
+}
+
 func (cpu *CPU) absolute() uint16 {
 	address := cpu.getUint16(cpu.PC)
 	cpu.PC += 2
@@ -36,6 +44,14 @@ func (cpu *CPU) absoluteIndexed(index byte) uint16 {
 	address += (uint16(cpu.ReadMemory(cpu.PC)) << 8)
 	cpu.PC++
 	return address
+}
+
+func (cpu *CPU) absoluteIndexedX() uint16 {
+	return cpu.absoluteIndexed(cpu.X)
+}
+
+func (cpu *CPU) absoluteIndexedY() uint16 {
+	return cpu.absoluteIndexed(cpu.Y)
 }
 
 func (cpu *CPU) indexedIndirectX() uint16 {
@@ -56,4 +72,35 @@ func (cpu *CPU) indirectIndexedY() uint16 {
 	}
 	base++
 	return address + (uint16(cpu.ReadMemory(uint16(base))) << 8)
+}
+
+func (cpu *CPU) absoluteX() uint16 {
+	address := uint16(cpu.ReadMemory(cpu.PC)) + uint16(cpu.X)
+	cpu.PC++
+	if address > 0xFF { // if crossed page boundary
+		cpu.tmpCycles++
+	}
+	address += (uint16(cpu.ReadMemory(cpu.PC+1)) << 8)
+	return address
+}
+
+func (cpu *CPU) absoluteY() uint16 {
+	address := uint16(cpu.ReadMemory(cpu.PC)) + uint16(cpu.Y)
+	cpu.PC++
+	if address > 0xFF { // if crossed page boundary
+		cpu.tmpCycles++
+	}
+	address += (uint16(cpu.ReadMemory(cpu.PC+1)) << 8)
+	return address
+}
+
+func (cpu *CPU) indirect() uint16 {
+	pointer := cpu.getUint16(cpu.PC)
+	cpu.PC++
+	address := uint16(cpu.ReadMemory(pointer)) // low byte
+	if (pointer & 0xFF) == 0xFF { // address wraps around page
+		pointer -= 0x100
+	}
+	pointer++
+	return address | (uint16(cpu.ReadMemory(pointer)) << 8)
 }

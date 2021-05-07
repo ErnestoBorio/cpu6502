@@ -1,3 +1,8 @@
+#!/usr/bin/env node
+/** 
+ * obelisk.js is an HTML Xpath parser to get 6502 opcode data from http://www.obelisk.me.uk/6502/reference.html 
+ */
+
 import { select as x } from "xpath";
 import { DOMParser } from "xmldom";
 import fs from "fs";
@@ -13,7 +18,7 @@ const dom = new DOMParser({
 
 let opcodes = Array(0x100);
 
-const ops = x("//h3[a[@name]]", dom);
+const ops = x("//h3[a[@name]]", dom); /** <h3><a name="LDA">LDA - Load Accumulator</a></h3> */
 
 let debug;
 
@@ -31,7 +36,7 @@ try {
 			const bytes = parseInt( x("td[3]/center/text()", row)[0].nodeValue.trim(), 10);
 			let cycleText = "";
 			x("td[4]/text()", row).forEach((node) => cycleText += node.nodeValue);
-			const cycles = parseInt(cycleText.slice(0,1), 10);		
+			const cycles = parseInt(cycleText.slice(0,1), 10);
 			opcodes[opcodeNum] = {
 				opcodeNum,
 				opcode,

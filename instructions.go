@@ -406,6 +406,10 @@ func (cpu *CPU) brk(uint16) {
 	cpu.irq(true)
 }
 
+func (cpu *CPU) clc(uint16) {
+	cpu.Status.Carry = false;
+}
+
 func (cpu *CPU) nop(uint16) {}
 
 func (cpu *CPU) nop2(uint16) {
@@ -422,7 +426,7 @@ func (cpu *CPU) undoc(uint16) {}
 
 
 /** @todo 
-CLC SEC CLI SEI CLD SED CLV 
+SEC CLI SEI CLD SED CLV 
 NOP_EA, 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: // implied undocumented NOPs (1 byte wide)
 0x0C, 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC: cpu.PC += 2 // absolute undoc NOPs (3 bytes wide)
 0x80, 0x82, 0x89, 0xC2, 0xE2, 0x04, 0x14, 0x34, 0x44, 0x54, 0x64, 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs (2 bytes wide)

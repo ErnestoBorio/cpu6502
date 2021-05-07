@@ -1,7 +1,6 @@
 package cpu6502
 
-// noAddressing is a dummy function for opcodes with no addressing, E.G. INX, NOP
-func (*CPU) noAddressing() uint16 {
+func (*CPU) implied() uint16 {
 	return 0
 }
 

@@ -1,4 +1,4 @@
-[
+export default [
 	{
 		"opcodeNum": 0,
 		"opcode": "00",
@@ -8,11 +8,27 @@
 		"bytes": 1,
 		"cycles": 7
 	},
+	{
+		"opcodeNum": 1,
+		"opcode": "01",
+		"mnemonic": "ORA",
+		"addressing": "IDX",
+		"addressingLong": "(Indirect,X)",
+		"bytes": 2,
+		"cycles": 6
+	},
 	null,
 	null,
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 5,
+		"opcode": "05",
+		"mnemonic": "ORA",
+		"addressing": "ZPG",
+		"addressingLong": "Zero Page",
+		"bytes": 2,
+		"cycles": 3
+	},
 	{
 		"opcodeNum": 6,
 		"opcode": "06",
@@ -23,8 +39,24 @@
 		"cycles": 5
 	},
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 8,
+		"opcode": "08",
+		"mnemonic": "PHP",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 3
+	},
+	{
+		"opcodeNum": 9,
+		"opcode": "09",
+		"mnemonic": "ORA",
+		"addressing": "IMM",
+		"addressingLong": "Immediate",
+		"bytes": 2,
+		"cycles": 2
+	},
 	{
 		"opcodeNum": 10,
 		"opcode": "0A",
@@ -36,7 +68,15 @@
 	},
 	null,
 	null,
-	null,
+	{
+		"opcodeNum": 13,
+		"opcode": "0D",
+		"mnemonic": "ORA",
+		"addressing": "ABS",
+		"addressingLong": "Absolute",
+		"bytes": 3,
+		"cycles": 4
+	},
 	{
 		"opcodeNum": 14,
 		"opcode": "0E",
@@ -57,11 +97,28 @@
 		"cycles": 2,
 		"extra": "(+1 if branch succeeds\n      +2 if to a new page)"
 	},
+	{
+		"opcodeNum": 17,
+		"opcode": "11",
+		"mnemonic": "ORA",
+		"addressing": "IDY",
+		"addressingLong": "(Indirect),Y",
+		"bytes": 2,
+		"cycles": 5,
+		"extra": "(+1 if page crossed)"
+	},
 	null,
 	null,
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 21,
+		"opcode": "15",
+		"mnemonic": "ORA",
+		"addressing": "ZPX",
+		"addressingLong": "Zero Page,X",
+		"bytes": 2,
+		"cycles": 4
+	},
 	{
 		"opcodeNum": 22,
 		"opcode": "16",
@@ -81,11 +138,29 @@
 		"bytes": 1,
 		"cycles": 2
 	},
+	{
+		"opcodeNum": 25,
+		"opcode": "19",
+		"mnemonic": "ORA",
+		"addressing": "ABY",
+		"addressingLong": "Absolute,Y",
+		"bytes": 3,
+		"cycles": 4,
+		"extra": "(+1 if page crossed)"
+	},
 	null,
 	null,
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 29,
+		"opcode": "1D",
+		"mnemonic": "ORA",
+		"addressing": "ABX",
+		"addressingLong": "Absolute,X",
+		"bytes": 3,
+		"cycles": 4,
+		"extra": "(+1 if page crossed)"
+	},
 	{
 		"opcodeNum": 30,
 		"opcode": "1E",
@@ -134,9 +209,25 @@
 		"bytes": 2,
 		"cycles": 3
 	},
+	{
+		"opcodeNum": 38,
+		"opcode": "26",
+		"mnemonic": "ROL",
+		"addressing": "ZPG",
+		"addressingLong": "Zero\n      Page",
+		"bytes": 2,
+		"cycles": 5
+	},
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 40,
+		"opcode": "28",
+		"mnemonic": "PLP",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 4
+	},
 	{
 		"opcodeNum": 41,
 		"opcode": "29",
@@ -146,7 +237,15 @@
 		"bytes": 2,
 		"cycles": 2
 	},
-	null,
+	{
+		"opcodeNum": 42,
+		"opcode": "2A",
+		"mnemonic": "ROL",
+		"addressing": "IMP",
+		"addressingLong": "Accumulator",
+		"bytes": 1,
+		"cycles": 2
+	},
 	null,
 	{
 		"opcodeNum": 44,
@@ -166,7 +265,15 @@
 		"bytes": 3,
 		"cycles": 4
 	},
-	null,
+	{
+		"opcodeNum": 46,
+		"opcode": "2E",
+		"mnemonic": "ROL",
+		"addressing": "ABS",
+		"addressingLong": "Absolute",
+		"bytes": 3,
+		"cycles": 6
+	},
 	null,
 	{
 		"opcodeNum": 48,
@@ -200,9 +307,25 @@
 		"bytes": 2,
 		"cycles": 4
 	},
+	{
+		"opcodeNum": 54,
+		"opcode": "36",
+		"mnemonic": "ROL",
+		"addressing": "ZPX",
+		"addressingLong": "Zero\n      Page,X",
+		"bytes": 2,
+		"cycles": 6
+	},
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 56,
+		"opcode": "38",
+		"mnemonic": "SEC",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
 	{
 		"opcodeNum": 57,
 		"opcode": "39",
@@ -226,9 +349,25 @@
 		"cycles": 4,
 		"extra": "(+1 if page crossed)"
 	},
+	{
+		"opcodeNum": 62,
+		"opcode": "3E",
+		"mnemonic": "ROL",
+		"addressing": "ABX",
+		"addressingLong": "Absolute,X",
+		"bytes": 3,
+		"cycles": 7
+	},
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 64,
+		"opcode": "40",
+		"mnemonic": "RTI",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 6
+	},
 	{
 		"opcodeNum": 65,
 		"opcode": "41",
@@ -260,7 +399,15 @@
 		"cycles": 5
 	},
 	null,
-	null,
+	{
+		"opcodeNum": 72,
+		"opcode": "48",
+		"mnemonic": "PHA",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 3
+	},
 	{
 		"opcodeNum": 73,
 		"opcode": "49",
@@ -392,7 +539,15 @@
 		"cycles": 7
 	},
 	null,
-	null,
+	{
+		"opcodeNum": 96,
+		"opcode": "60",
+		"mnemonic": "RTS",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 6
+	},
 	{
 		"opcodeNum": 97,
 		"opcode": "61",
@@ -414,9 +569,25 @@
 		"bytes": 2,
 		"cycles": 3
 	},
+	{
+		"opcodeNum": 102,
+		"opcode": "66",
+		"mnemonic": "ROR",
+		"addressing": "ZPG",
+		"addressingLong": "Zero\n      Page",
+		"bytes": 2,
+		"cycles": 5
+	},
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 104,
+		"opcode": "68",
+		"mnemonic": "PLA",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 4
+	},
 	{
 		"opcodeNum": 105,
 		"opcode": "69",
@@ -426,7 +597,15 @@
 		"bytes": 2,
 		"cycles": 2
 	},
-	null,
+	{
+		"opcodeNum": 106,
+		"opcode": "6A",
+		"mnemonic": "ROR",
+		"addressing": "IMP",
+		"addressingLong": "Accumulator",
+		"bytes": 1,
+		"cycles": 2
+	},
 	null,
 	{
 		"opcodeNum": 108,
@@ -446,7 +625,15 @@
 		"bytes": 3,
 		"cycles": 4
 	},
-	null,
+	{
+		"opcodeNum": 110,
+		"opcode": "6E",
+		"mnemonic": "ROR",
+		"addressing": "ABS",
+		"addressingLong": "Absolute",
+		"bytes": 3,
+		"cycles": 6
+	},
 	null,
 	{
 		"opcodeNum": 112,
@@ -480,9 +667,25 @@
 		"bytes": 2,
 		"cycles": 4
 	},
+	{
+		"opcodeNum": 118,
+		"opcode": "76",
+		"mnemonic": "ROR",
+		"addressing": "ZPX",
+		"addressingLong": "Zero\n      Page,X",
+		"bytes": 2,
+		"cycles": 6
+	},
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 120,
+		"opcode": "78",
+		"mnemonic": "SEI",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
 	{
 		"opcodeNum": 121,
 		"opcode": "79",
@@ -506,15 +709,55 @@
 		"cycles": 4,
 		"extra": "(+1 if page crossed)"
 	},
+	{
+		"opcodeNum": 126,
+		"opcode": "7E",
+		"mnemonic": "ROR",
+		"addressing": "ABX",
+		"addressingLong": "Absolute,X",
+		"bytes": 3,
+		"cycles": 7
+	},
 	null,
 	null,
+	{
+		"opcodeNum": 129,
+		"opcode": "81",
+		"mnemonic": "STA",
+		"addressing": "IDX",
+		"addressingLong": "(Indirect,X)",
+		"bytes": 2,
+		"cycles": 6
+	},
 	null,
 	null,
-	null,
-	null,
-	null,
-	null,
-	null,
+	{
+		"opcodeNum": 132,
+		"opcode": "84",
+		"mnemonic": "STY",
+		"addressing": "ZPG",
+		"addressingLong": "Zero Page",
+		"bytes": 2,
+		"cycles": 3
+	},
+	{
+		"opcodeNum": 133,
+		"opcode": "85",
+		"mnemonic": "STA",
+		"addressing": "ZPG",
+		"addressingLong": "Zero Page",
+		"bytes": 2,
+		"cycles": 3
+	},
+	{
+		"opcodeNum": 134,
+		"opcode": "86",
+		"mnemonic": "STX",
+		"addressing": "ZPG",
+		"addressingLong": "Zero Page",
+		"bytes": 2,
+		"cycles": 3
+	},
 	null,
 	{
 		"opcodeNum": 136,
@@ -526,11 +769,43 @@
 		"cycles": 2
 	},
 	null,
+	{
+		"opcodeNum": 138,
+		"opcode": "8A",
+		"mnemonic": "TXA",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
 	null,
-	null,
-	null,
-	null,
-	null,
+	{
+		"opcodeNum": 140,
+		"opcode": "8C",
+		"mnemonic": "STY",
+		"addressing": "ABS",
+		"addressingLong": "Absolute",
+		"bytes": 3,
+		"cycles": 4
+	},
+	{
+		"opcodeNum": 141,
+		"opcode": "8D",
+		"mnemonic": "STA",
+		"addressing": "ABS",
+		"addressingLong": "Absolute",
+		"bytes": 3,
+		"cycles": 4
+	},
+	{
+		"opcodeNum": 142,
+		"opcode": "8E",
+		"mnemonic": "STX",
+		"addressing": "ABS",
+		"addressingLong": "Absolute",
+		"bytes": 3,
+		"cycles": 4
+	},
 	null,
 	{
 		"opcodeNum": 144,
@@ -542,19 +817,83 @@
 		"cycles": 2,
 		"extra": "(+1 if branch succeeds\n      +2 if to a new page)"
 	},
+	{
+		"opcodeNum": 145,
+		"opcode": "91",
+		"mnemonic": "STA",
+		"addressing": "IDY",
+		"addressingLong": "(Indirect),Y",
+		"bytes": 2,
+		"cycles": 6
+	},
 	null,
 	null,
+	{
+		"opcodeNum": 148,
+		"opcode": "94",
+		"mnemonic": "STY",
+		"addressing": "ZPX",
+		"addressingLong": "Zero Page,X",
+		"bytes": 2,
+		"cycles": 4
+	},
+	{
+		"opcodeNum": 149,
+		"opcode": "95",
+		"mnemonic": "STA",
+		"addressing": "ZPX",
+		"addressingLong": "Zero Page,X",
+		"bytes": 2,
+		"cycles": 4
+	},
+	{
+		"opcodeNum": 150,
+		"opcode": "96",
+		"mnemonic": "STX",
+		"addressing": "ZPY",
+		"addressingLong": "Zero Page,Y",
+		"bytes": 2,
+		"cycles": 4
+	},
+	null,
+	{
+		"opcodeNum": 152,
+		"opcode": "98",
+		"mnemonic": "TYA",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
+	{
+		"opcodeNum": 153,
+		"opcode": "99",
+		"mnemonic": "STA",
+		"addressing": "ABY",
+		"addressingLong": "Absolute,Y",
+		"bytes": 3,
+		"cycles": 5
+	},
+	{
+		"opcodeNum": 154,
+		"opcode": "9A",
+		"mnemonic": "TXS",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
 	null,
 	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
-	null,
+	{
+		"opcodeNum": 157,
+		"opcode": "9D",
+		"mnemonic": "STA",
+		"addressing": "ABX",
+		"addressingLong": "Absolute,X",
+		"bytes": 3,
+		"cycles": 5
+	},
 	null,
 	null,
 	{
@@ -613,7 +952,15 @@
 		"cycles": 3
 	},
 	null,
-	null,
+	{
+		"opcodeNum": 168,
+		"opcode": "A8",
+		"mnemonic": "TAY",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
 	{
 		"opcodeNum": 169,
 		"opcode": "A9",
@@ -623,7 +970,15 @@
 		"bytes": 2,
 		"cycles": 2
 	},
-	null,
+	{
+		"opcodeNum": 170,
+		"opcode": "AA",
+		"mnemonic": "TAX",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
 	null,
 	{
 		"opcodeNum": 172,
@@ -722,7 +1077,15 @@
 		"cycles": 4,
 		"extra": "(+1 if page crossed)"
 	},
-	null,
+	{
+		"opcodeNum": 186,
+		"opcode": "BA",
+		"mnemonic": "TSX",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
 	null,
 	{
 		"opcodeNum": 188,
@@ -952,7 +1315,15 @@
 		"bytes": 2,
 		"cycles": 2
 	},
-	null,
+	{
+		"opcodeNum": 225,
+		"opcode": "E1",
+		"mnemonic": "SBC",
+		"addressing": "IDX",
+		"addressingLong": "(Indirect,X)",
+		"bytes": 2,
+		"cycles": 6
+	},
 	null,
 	null,
 	{
@@ -964,7 +1335,15 @@
 		"bytes": 2,
 		"cycles": 3
 	},
-	null,
+	{
+		"opcodeNum": 229,
+		"opcode": "E5",
+		"mnemonic": "SBC",
+		"addressing": "ZPG",
+		"addressingLong": "Zero Page",
+		"bytes": 2,
+		"cycles": 3
+	},
 	{
 		"opcodeNum": 230,
 		"opcode": "E6",
@@ -984,7 +1363,15 @@
 		"bytes": 1,
 		"cycles": 2
 	},
-	null,
+	{
+		"opcodeNum": 233,
+		"opcode": "E9",
+		"mnemonic": "SBC",
+		"addressing": "IMM",
+		"addressingLong": "Immediate",
+		"bytes": 2,
+		"cycles": 2
+	},
 	{
 		"opcodeNum": 234,
 		"opcode": "EA",
@@ -1004,7 +1391,15 @@
 		"bytes": 3,
 		"cycles": 4
 	},
-	null,
+	{
+		"opcodeNum": 237,
+		"opcode": "ED",
+		"mnemonic": "SBC",
+		"addressing": "ABS",
+		"addressingLong": "Absolute",
+		"bytes": 3,
+		"cycles": 4
+	},
 	{
 		"opcodeNum": 238,
 		"opcode": "EE",
@@ -1025,11 +1420,28 @@
 		"cycles": 2,
 		"extra": "(+1 if branch succeeds\n      +2 if to a new page)"
 	},
+	{
+		"opcodeNum": 241,
+		"opcode": "F1",
+		"mnemonic": "SBC",
+		"addressing": "IDY",
+		"addressingLong": "(Indirect),Y",
+		"bytes": 2,
+		"cycles": 5,
+		"extra": "(+1 if page crossed)"
+	},
 	null,
 	null,
 	null,
-	null,
-	null,
+	{
+		"opcodeNum": 245,
+		"opcode": "F5",
+		"mnemonic": "SBC",
+		"addressing": "ZPX",
+		"addressingLong": "Zero Page,X",
+		"bytes": 2,
+		"cycles": 4
+	},
 	{
 		"opcodeNum": 246,
 		"opcode": "F6",
@@ -1040,12 +1452,38 @@
 		"cycles": 6
 	},
 	null,
+	{
+		"opcodeNum": 248,
+		"opcode": "F8",
+		"mnemonic": "SED",
+		"addressing": "IMP",
+		"addressingLong": "Implied",
+		"bytes": 1,
+		"cycles": 2
+	},
+	{
+		"opcodeNum": 249,
+		"opcode": "F9",
+		"mnemonic": "SBC",
+		"addressing": "ABY",
+		"addressingLong": "Absolute,Y",
+		"bytes": 3,
+		"cycles": 4,
+		"extra": "(+1 if page crossed)"
+	},
 	null,
 	null,
 	null,
-	null,
-	null,
-	null,
+	{
+		"opcodeNum": 253,
+		"opcode": "FD",
+		"mnemonic": "SBC",
+		"addressing": "ABX",
+		"addressingLong": "Absolute,X",
+		"bytes": 3,
+		"cycles": 4,
+		"extra": "(+1 if page crossed)"
+	},
 	{
 		"opcodeNum": 254,
 		"opcode": "FE",
@@ -1056,4 +1494,4 @@
 		"cycles": 7
 	},
 	null
-]
+];

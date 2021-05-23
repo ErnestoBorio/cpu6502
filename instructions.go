@@ -350,18 +350,8 @@ func (cpu *CPU) pla(uint16) {
 }
 
 // JMP
-func (cpu *CPU) jumpAbsolute(address uint16) {
+func (cpu *CPU) jmp(address uint16) {
 	cpu.PC = address
-}
-
-// JMP
-func (cpu *CPU) jumpIndirect(address uint16) {
-	cpu.PC = uint16(cpu.ReadMemory(address)) // low byte
-	if (address & 0xFF) == 0xFF {            // address wraps around page
-		address -= 0x100
-	}
-	address++
-	cpu.PC |= uint16(cpu.ReadMemory(address)) << 8 // high byte
 }
 
 func (cpu *CPU) jsr(uint16) {
@@ -410,6 +400,30 @@ func (cpu *CPU) clc(uint16) {
 	cpu.Status.Carry = false;
 }
 
+func (cpu *CPU) sec(uint16) {
+	cpu.Status.Carry = true;
+}
+
+func (cpu *CPU) cli(uint16) {
+	cpu.Status.NoInterrupt = false;
+}
+
+func (cpu *CPU) sei(uint16) {
+	cpu.Status.NoInterrupt = true;
+}
+
+func (cpu *CPU) cld(uint16) {
+	cpu.Status.Decimal = false;
+}
+
+func (cpu *CPU) sed(uint16) {
+	cpu.Status.Decimal = true;
+}
+
+func (cpu *CPU) clv(uint16) {
+	cpu.Status.Overflow = false;
+}
+
 func (cpu *CPU) nop(uint16) {}
 
 func (cpu *CPU) nop2(uint16) {
@@ -422,12 +436,3 @@ func (cpu *CPU) nop3(uint16) {
 
 // Undocumented opcodes
 func (cpu *CPU) undoc(uint16) {}
-
-
-
-/** @todo 
-SEC CLI SEI CLD SED CLV 
-NOP_EA, 0x1A, 0x3A, 0x5A, 0x7A, 0xDA, 0xFA: // implied undocumented NOPs (1 byte wide)
-0x0C, 0x1C, 0x3C, 0x5C, 0x7C, 0xDC, 0xFC: cpu.PC += 2 // absolute undoc NOPs (3 bytes wide)
-0x80, 0x82, 0x89, 0xC2, 0xE2, 0x04, 0x14, 0x34, 0x44, 0x54, 0x64, 0x74, 0xD4, 0xF4: cpu.PC++ // immediate and zeropage undoc NOPs (2 bytes wide)
-*/

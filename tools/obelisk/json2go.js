@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-/** json2go.js translates opcodes.json in opcodes.go with proper declarations. */
+/** json2go.js translates opcodes.js to opcodes.go with proper declarations. */
 
-import opcodes from "./opcodes.json";
+import opcodes from "./opcodes.js";
 
 const outfile = process.stdout;
 
@@ -17,8 +17,8 @@ const addressing = {
 	"ABX": "absoluteX",
 	"ABY": "absoluteY",
 	"IND": "indirect",
-	"IIX": "indexedIndirectX",
-	"IIY": "indirectIndexedY"
+	"IDX": "indexedIndirectX",
+	"IDY": "indirectIndexedY"
 }
 
 outfile.write(`package cpu6502
@@ -54,14 +54,14 @@ for (let i = 0; i < opcodes.length; i++) {
 	}
 	let op = opcodes[i];
 	if (op.opcodeNum == 0 ) op.cycles = 0; // For BRK ($00) the 7 cycles are counted for in irq()
-	let func = op.mnemonic.toLowerCase().slice(0, 3);
-	if (!documented) func = "undoc";
-	if (op.mnemonic == "JMP") {
-		if (op.addressing = "ABS") func = "jumpAbsolute";
-		if (op.addressing = "IND") func = "jumpIndirect";
-	}
+	let func = !documented ? "undoc" : op.mnemonic.toLowerCase().slice(0, 3);
+	// Bit shifting instructions on the accumulator need a separate function that doesn't use addressing
+	if(['asl','lsr','ror','rol'].includes(func) && op.addressing == 'IMP') func += 'a';
+	let padding = " ".repeat(6 - func.length);
 
-	outfile.write(`\t{ Opcode: 0x${op.opcode}, Length: ${op.bytes}, Cycles: ${op.cycles}, Documented: ${documented}, Instruction: (cpu *CPU).${func}, Addressing: (*CPU).${addressing[op.addressing]}`);
+	outfile.write(`\t{ Opcode: 0x${op.opcode}, Length: ${op.bytes}, Cycles: ${op.cycles}, Documented: ${documented}`);
+	if(documented) outfile.write(" ");
+	outfile.write(`, Instruction: (*CPU).${func},${padding}Addressing: (*CPU).${addressing[op.addressing]}},\n`);
 }
 
 outfile.write("}\n\n");

@@ -17,14 +17,12 @@ type CPU struct {
 		NoInterrupt bool
 	}
 
-	tmpCycles int // Used temporarily inside CPU.Step() <Don't use>
+	// Used temporarily inside CPU.Step() <Don't use>
+	tmpCycles int
 
 	// References to functions on the host system to access memory
 	ReadMemory  func(uint16) byte
 	WriteMemory func(uint16, byte)
-
-	// Temporary WIP TODO
-	DbgReadMemory func(uint16) byte
 }
 
 // Init Initializes the state of the cpu as stated in:
@@ -43,7 +41,6 @@ func (cpu *CPU) Init(read func(uint16) byte, write func(uint16, byte)) {
 	cpu.Status.NoInterrupt = true
 	cpu.ReadMemory = read
 	cpu.WriteMemory = write
-	cpu.DbgReadMemory = read // Temporary WIP
 }
 
 // Jump to the address where the reset vector points to
@@ -75,4 +72,21 @@ func (cpu *CPU) getUint16(address uint16) uint16 {
 	value := uint16(cpu.ReadMemory(address))
 	value |= uint16(cpu.ReadMemory(address+1)) << 8
 	return value
+}
+
+// Fetches one complete instruction from PC and executes it.
+func (cpu *CPU) Step() int {
+	// Fetch operation code from current PC address
+	opcode := cpu.ReadMemory(cpu.PC)
+	// Advance PC for either first argument byte or next instruction
+	cpu.PC++
+	// Count basic instruction cycles, they can be incremented afterwards in certain conditions
+	cpu.tmpCycles = Opcodes[opcode].Cycles
+	
+	// Call the appropriate instruction and addressing mode for the fetched opcode
+	address := Opcodes[opcode].Addressing(cpu)
+	Opcodes[opcode].Instruction(cpu, address)
+	
+	// @todo: byte following opcode is read in advance, possibly causing side effects. Test it.
+	return cpu.tmpCycles
 }

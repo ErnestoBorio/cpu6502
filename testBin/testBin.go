@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/Drean64/cpu6502"
+	"../cpu6502"
 )
 
 var mem []byte

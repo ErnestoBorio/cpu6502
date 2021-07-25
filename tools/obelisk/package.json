@@ -4,12 +4,11 @@
 	"description": "HTML Xpath parser to get 6502 opcode data from http://www.obelisk.me.uk/6502/reference.html",
 	"main": "obelisk.js",
 	"type": "module",
-	"scripts": {
-	},
+	"scripts": {},
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
-		"xmldom": "^0.4.0",
+		"xmldom": "^0.6.0",
 		"xpath": "^0.0.32"
 	}
 }

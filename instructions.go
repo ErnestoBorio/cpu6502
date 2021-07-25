@@ -243,13 +243,13 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 	if flag == condition {
 		cpu.tmpCycles++
 		oldPage := cpu.PC & 0xFF00 // high byte
-		if jump&signBit > 0 {      // relative jump is negative
+		if jump & signBit > 0 { // relative jump is negative
 			cpu.PC += uint16(jump) - 0x100 // subtract jump's 2's complement
 		} else {
 			cpu.PC += uint16(jump)
 		}
 		// Branching crosses page boundary?
-		if oldPage != cpu.PC&0xFF00 { // high byte
+		if oldPage != cpu.PC & 0xFF00 { // high byte
 			cpu.tmpCycles++
 		}
 	}
@@ -354,12 +354,12 @@ func (cpu *CPU) jmp(address uint16) {
 	cpu.PC = address
 }
 
-func (cpu *CPU) jsr(uint16) {
-	// Return address is off by -1, pointing to JSR's last byte. Will be fixed on RTS
-	returnAddress := cpu.PC + 1
+func (cpu *CPU) jsr(address uint16) {
+	// Return address is off by -1, pointing to JSR operand's last byte. Will be fixed on RTS
+	returnAddress := cpu.PC - 1
 	cpu.push(byte(returnAddress >> 8))   // address' high byte
 	cpu.push(byte(returnAddress & 0xFF)) // address' low byte
-	cpu.PC = cpu.getUint16(cpu.PC)       // Jump
+	cpu.PC = address // Jump
 }
 
 func (cpu *CPU) rts(uint16) {

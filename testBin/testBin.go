@@ -5,13 +5,13 @@ import (
 	"io/ioutil"
 	"os"
 
-	"../cpu6502"
+	"github.com/Drean64/cpu6502"
 )
 
 var mem []byte
 
 func main() {
-  var err error
+	var err error
 	mem, err = ioutil.ReadFile(os.Args[1])
 	if err != nil {
 		panic(err)
@@ -21,9 +21,11 @@ func main() {
 		func(adr uint16) byte { return mem[adr] },
 		func(adr uint16, val byte) { mem[adr] = val },
 	)
+
+	fmt.Println("Running the cpu6502 with a test ROM.")
 	
 	cpu.PC = Tests_Start
-	stop: for ;; {
+	for ;; {
 		switch cpu.PC {
 			case Trigger_IRQ:
 				cpu.PC++ // cheat: skip to next address to avoid re-firing interrupt
@@ -33,10 +35,10 @@ func main() {
 				cpu.NMI()
 			case Tests_Fail:
 				fmt.Printf("Test %d failed :(\n", mem[Test_Number])
-				break stop
+				os.Exit(int(mem[Test_Number]))
 			case Tests_Success:
 				fmt.Printf("All tests succeeded :)\n")
-				break stop
+				os.Exit(0)
 		}
 		opcode := mem[cpu.PC]
 		addressing := addressings[opcode]
@@ -80,7 +82,10 @@ func main() {
 			case _imp:
 				fmt.Println()
 			default:
-				panic("No addressing?")
+				fmt.Printf("Opcode: $%02X, PC: $%04X, probably landed on a bogus address after a bad jump or branch.\n", 
+					opcode, cpu.PC)
+				fmt.Printf("Last test run: %d\n", mem[Test_Number])
+				os.Exit(int(mem[Test_Number]))
 		}
 		cpu.Step()
 	}

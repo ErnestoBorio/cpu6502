@@ -101,7 +101,7 @@ Begin_tests:
    NOP
    NOP
 ; -----------------------------------------------------------
-
+; $709
 test_1_LDA:
    LDA #1
    STA current_test_no
@@ -111,6 +111,7 @@ test_1_LDA:
 test_1_ok:
 
 ; ----------------------------------
+; $714
 test_2_LDX:
    LDX #2
    STX current_test_no
@@ -543,7 +544,7 @@ test_19_ok:
 ; -----------------------------------------------------------
 ; tests ended
    JMP Success
-   STA current_test_no
+   STA current_test_no ; And this? seems like unreachable code.
 
 ; -----------------------------------------------------------
    ORG $C000

@@ -6,10 +6,10 @@ import opcodes from "./opcodes.js";
 const outfile = process.stdout;
 
 const addressing = {
-	null: "implied",
+	null:  "implied",
 	"IMP": "implied",
+	"REL": "implied",
 	"IMM": "immediate",
-	"REL": "immediate",
 	"ZPG": "zeroPage",
 	"ZPX": "zeroPageX",
 	"ZPY": "zeroPageY",
@@ -44,7 +44,7 @@ for (let i = 0; i < opcodes.length; i++) {
 		documented = false;
 		opcodes[i] = {
 			opcodeNum: i,
-			opcode: i.toString(16).padStart(2, "0"),
+			opcode: i.toString(16).padStart(2, "0").toUpperCase(),
 			mnemonic: null,
 			addressing: null,
 			addressingLong: null,

@@ -243,13 +243,13 @@ func (cpu *CPU) branch(flag bool, condition bool) {
 	if flag == condition {
 		cpu.tmpCycles++
 		oldPage := cpu.PC & 0xFF00 // high byte
-		if jump & signBit > 0 { // relative jump is negative
+		if jump&signBit > 0 {      // relative jump is negative
 			cpu.PC += uint16(jump) - 0x100 // subtract jump's 2's complement
 		} else {
 			cpu.PC += uint16(jump)
 		}
 		// Branching crosses page boundary?
-		if oldPage != cpu.PC & 0xFF00 { // high byte
+		if oldPage != cpu.PC&0xFF00 { // high byte
 			cpu.tmpCycles++
 		}
 	}
@@ -359,7 +359,7 @@ func (cpu *CPU) jsr(address uint16) {
 	returnAddress := cpu.PC - 1
 	cpu.push(byte(returnAddress >> 8))   // address' high byte
 	cpu.push(byte(returnAddress & 0xFF)) // address' low byte
-	cpu.PC = address // Jump
+	cpu.PC = address                     // Jump
 }
 
 func (cpu *CPU) rts(uint16) {
@@ -397,31 +397,31 @@ func (cpu *CPU) brk(uint16) {
 }
 
 func (cpu *CPU) clc(uint16) {
-	cpu.Status.Carry = false;
+	cpu.Status.Carry = false
 }
 
 func (cpu *CPU) sec(uint16) {
-	cpu.Status.Carry = true;
+	cpu.Status.Carry = true
 }
 
 func (cpu *CPU) cli(uint16) {
-	cpu.Status.NoInterrupt = false;
+	cpu.Status.NoInterrupt = false
 }
 
 func (cpu *CPU) sei(uint16) {
-	cpu.Status.NoInterrupt = true;
+	cpu.Status.NoInterrupt = true
 }
 
 func (cpu *CPU) cld(uint16) {
-	cpu.Status.Decimal = false;
+	cpu.Status.Decimal = false
 }
 
 func (cpu *CPU) sed(uint16) {
-	cpu.Status.Decimal = true;
+	cpu.Status.Decimal = true
 }
 
 func (cpu *CPU) clv(uint16) {
-	cpu.Status.Overflow = false;
+	cpu.Status.Overflow = false
 }
 
 func (cpu *CPU) nop(uint16) {}

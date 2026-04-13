@@ -103,34 +103,34 @@ impl CPU {
 
 	fn adc(&mut self, address: u16) {
 		let value = (self.read_memory)(address);
-		let sum = if self.status.carry {
-			let (sum, _) = self.a.overflowing_add(value);
-			let (sum, carry) = sum.overflowing_add(1);
-			self.status.carry = carry || sum <= self.a;
-			sum
-		} else {
-			let (sum, carry) = self.a.overflowing_add(value);
-			self.status.carry = carry;
-			sum
-		};
-		self.status.overflow = ((self.a ^ sum) & (value ^ sum) & 0x80) != 0;
+
+		let (mut sum, _) = self.a.overflowing_add(value);
+		let mut carry: u8 = 0;
+		if self.status.carry {
+			let c: bool;
+			(sum, c) = sum.overflowing_add(1);
+			carry = c as u8;
+		}
+		self.status.carry = carry != 0;
+
+		self.status.overflow = ((self.a ^ sum) & (value ^ sum) & 0b1000_0000) != 0;
 		self.a = sum;
 		self.calculate_zero_negative(self.a);
 	}
 
 	fn sbc(&mut self, address: u16) {
 		let value = (self.read_memory)(address);
-		let diff = if self.status.carry {
-			let (diff, carry) = self.a.overflowing_sub(value);
-			self.status.carry = !carry;
-			diff
-		} else {
-			let (diff, _) = self.a.overflowing_sub(value);
-			let (diff, carry) = diff.overflowing_sub(1);
-			self.status.carry = !carry;
-			diff
-		};
-		self.status.overflow = ((self.a ^ value) & (self.a ^ diff) & 0x80) != 0;
+
+		let (mut diff, _) = self.a.overflowing_sub(value);
+		let mut carry: u8 = 0;
+		if self.status.carry {
+			let c: bool;
+			(diff, c) = diff.overflowing_sub(1);
+			carry = c as u8;
+		}
+		self.status.carry = carry != 0;
+
+		self.status.overflow = ((self.a ^ value) & (self.a ^ diff) & 0b1000_0000) != 0;
 		self.a = diff;
 		self.calculate_zero_negative(self.a);
 	}
@@ -139,7 +139,7 @@ impl CPU {
 		let value = (self.read_memory)(address);
 		self.status.zero = register == value;
 		self.status.carry = register >= value;
-		self.status.negative = (register.wrapping_sub(value)) & 0x80 != 0;
+		self.status.negative = (register.wrapping_sub(value) & 0b1000_0000) != 0;
 	}
 
 	fn cmp(&mut self, address: u16) {
@@ -155,14 +155,14 @@ impl CPU {
 	}
 
 	fn asla(&mut self) {
-		self.status.carry = (self.a & 0x80) != 0;
+		self.status.carry = (self.a & 0b1000_0000) == 0b1000_0000;
 		self.a = self.a << 1;
 		self.calculate_zero_negative(self.a);
 	}
 
-	fn asl(&mut self, address: u16) {
+	fn asl(&mut self, address: u16) { bookmark
 		let mut value = (self.read_memory)(address);
-		self.status.carry = (value & 0x80) != 0;
+		self.status.carry = (value & 0b1000_0000) != 0;
 		value = value << 1;
 		self.calculate_zero_negative(value);
 		(self.write_memory)(address, value);
@@ -184,7 +184,7 @@ impl CPU {
 
 	fn rola(&mut self) {
 		let old_carry = if self.status.carry { 1 } else { 0 };
-		self.status.carry = (self.a & 0x80) != 0;
+		self.status.carry = (self.a & 0b1000_0000) != 0;
 		self.a = (self.a << 1) | old_carry;
 		self.calculate_zero_negative(self.a);
 	}
@@ -192,14 +192,14 @@ impl CPU {
 	fn rol(&mut self, address: u16) {
 		let mut value = (self.read_memory)(address);
 		let old_carry = if self.status.carry { 1 } else { 0 };
-		self.status.carry = (value & 0x80) != 0;
+		self.status.carry = (value & 0b1000_0000) != 0;
 		value = (value << 1) | old_carry;
 		self.calculate_zero_negative(value);
 		(self.write_memory)(address, value);
 	}
 
 	fn rora(&mut self) {
-		let old_carry = if self.status.carry { 0x80 } else { 0 };
+		let old_carry = if self.status.carry { 0b1000_0000 } else { 0 };
 		self.status.carry = (self.a & 0x01) != 0;
 		self.a = (self.a >> 1) | old_carry;
 		self.calculate_zero_negative(self.a);
@@ -207,7 +207,7 @@ impl CPU {
 
 	fn ror(&mut self, address: u16) {
 		let mut value = (self.read_memory)(address);
-		let old_carry = if self.status.carry { 0x80 } else { 0 };
+		let old_carry = if self.status.carry { 0b1000_0000 } else { 0 };
 		self.status.carry = (value & 0x01) != 0;
 		value = (value >> 1) | old_carry;
 		self.calculate_zero_negative(value);
@@ -262,7 +262,7 @@ impl CPU {
 		let value = (self.read_memory)(address);
 		self.status.zero = (value & self.a) == 0;
 		self.status.overflow = (value & 0x40) != 0;
-		self.status.negative = (value & 0x80) != 0;
+		self.status.negative = (value & 0b1000_0000) != 0;
 	}
 
 	fn php(&mut self) {
@@ -349,6 +349,8 @@ impl CPU {
 	fn nop3(&mut self) {
 		self.pc = self.pc.wrapping_add(2);
 	}
+
+	
 
 	fn undoc(&mut self) {}
 }
